@@ -1,0 +1,22 @@
+{
+  "name": "projet-ia",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^22.7.6",
+    "eslint": "^9.12.0",
+    "globals": "^15.11.0",
+    "sass": "^1.80.1",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.8"
+  }
+}
