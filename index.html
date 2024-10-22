@@ -4,12 +4,35 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <link rel="icon" type="image/png" href="/logo.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap"
+            rel="stylesheet"
+        />
 
         <script type="module" src="/src/main.ts"></script>
 
-        <title>Prpjet IA</title>
+        <title>Projet IA | Démineur</title>
     </head>
     <body>
+        <div id="game-container">
+            <div id="game-header">
+                <select id="difficulty-select" value="easy">
+                    <option value="easy">Facile</option>
+                    <option value="medium">Moyen</option>
+                    <option value="hard">Difficile</option>
+                </select>
+                
+                <button class="game-btn" id="new-game">Nouvelle partie</button>
+            </div>
+            <div id="game-grid"></div>
+                
+            <div id="game-over" style="display: none;">
+                <p id="game-over-message"></p>
+                <button class="game-btn" id="game-over-btn">Rejouer</button>
+            </div>
+        </div>
     </body>
 </html>

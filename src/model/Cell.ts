@@ -7,17 +7,17 @@ export enum CellState {
     /**
      * La case est couverte.
      */
-    Covered,
+    Covered = 'covered',
 
     /**
      * La case est marquée comme ayant une mine.
      */
-    Marked,
+    Marked = 'marked',
 
     /**
      * La case est découverte.
      */
-    Discovered
+    Discovered = 'discovered'
 }
 
 /**
@@ -106,10 +106,15 @@ class Cell {
         }
     }
 
+    /**
+     * Convertis une cellule en chaîne de caractères.
+     * @return {string} La chaîne de caractères représentant la cellule.
+     * @memberof Cell
+     */
     public toString(): string {
         switch (this._state) {
             case CellState.Covered:
-                return '';
+                return '  ';
 
             case CellState.Marked:
                 return '🚩';
@@ -118,9 +123,33 @@ class Cell {
                 if (this._hasMine) {
                     return '💣';
                 } else {
-                    return String(this.nbMinesAround);
+                    return `${this.nbMinesAround} `;
                 }
         }
+    }
+
+    /**
+     * Convertis une cellule en HTML.
+     * @param {number} row - La ligne de la cellule.
+     * @param {number} column - La colonne de la cellule.
+     * @return {string} La chaîne de caractères représentant la cellule en HTML.
+     * @memberof Cell
+     */
+    public toHtml(row: number, column: number): string {
+        // Construction de la classe CSS
+        const baseClass = 'game-cell';
+        let className = `${baseClass} ${baseClass}--${this._state} ${baseClass}--${
+            (row + column) % 2 === 0 ? 'odd' : 'even'
+        }`;
+        if (this._state === CellState.Discovered) {
+            className += ` ${baseClass}--${this._hasMine ? 'mine' : this.nbMinesAround}`;
+        }
+
+        return `
+        <button class="${className}" data-row="${row}" data-column="${column}">
+            ${this.toString().trim().replace('0', '')}
+        </button>
+        `;
     }
 }
 

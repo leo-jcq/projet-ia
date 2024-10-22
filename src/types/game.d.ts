@@ -1,4 +1,4 @@
-import { ActionType } from "@/model/Grid";
+import { ActionType } from '@/model/Grid';
 
 /**
  * Représente des coordonnées dans une grille.
@@ -7,9 +7,9 @@ import { ActionType } from "@/model/Grid";
 export type Coordinates = {
     row: number;
     column: number;
-}
+};
 
 export type Action = {
     coordinates: Coordinates;
     type: ActionType;
-}
+};

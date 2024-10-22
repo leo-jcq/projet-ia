@@ -65,8 +65,6 @@ class Grid {
      */
     private readonly _cells: Cell[][];
 
-    private _render: number;
-
     /**
      * Crée une instance de {@link Grid}.
      * @param {Difficulty} difficulty La difficultée.
@@ -79,7 +77,6 @@ class Grid {
         this._cells = Array.from({ length: size }, () =>
             Array.from({ length: size }, () => new Cell(false))
         );
-        this._render = 0;
 
         this.initMines();
         this.calculateNbMinesAround();
@@ -194,7 +191,6 @@ class Grid {
                 if (neighborCell.state !== CellState.Discovered) {
                     // Découverte de la case
                     neighborCell.discover();
-                    this._render++;
                     // Découverte de ses voisines
                     this.discoverNeighbors(neighbor);
                 }
@@ -223,11 +219,7 @@ class Grid {
     }
 
     public get cells(): ReadonlyArray<ReadonlyArray<Cell>> {
-        return this._cells
-    }
-
-    public get render(): number {
-        return this._render;
+        return this._cells;
     }
 
     /**
@@ -258,7 +250,6 @@ class Grid {
             case ActionType.Discover:
                 // Découverte de la cellule
                 cell.discover();
-                this._render++;
                 if (!cell.hasMine) {
                     // Découverte de ses voisines
                     this.discoverNeighbors(coordinates);
@@ -267,11 +258,22 @@ class Grid {
 
             case ActionType.Mark:
                 cell.invertMarked();
-                this._render++;
                 break;
 
             default:
                 break;
+        }
+    }
+
+    public discoverMines(): void {
+        for (let row = 0; row < this.size; row++) {
+            for (let column = 0; column < this.size; column++) {
+                const cell = this._cells[row][column];
+                console.log(cell);
+                if (cell.hasMine) {
+                    cell.discover();
+                }
+            }
         }
     }
 
@@ -387,7 +389,7 @@ class Grid {
         } else {
             str += printedRow;
         }
-        str += ' |';
+        str += ' ';
 
         return str;
     }
@@ -400,36 +402,31 @@ class Grid {
      * @memberof Grid
      */
     private printCells(row: number): string {
-        let str = '';
+        let str = '|';
 
         for (let column = 0; column < this._size; column++) {
-            const cell = this._cells[row][column];
-
-            switch (cell.state) {
-                case CellState.Covered:
-                    str += '  ';
-                    break;
-
-                case CellState.Marked:
-                    str += '🚩';
-                    break;
-
-                case CellState.Discovered:
-                    if (cell.hasMine) {
-                        str += '💣';
-                    } else {
-                        str += `${cell.nbMinesAround} `;
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-            str += '|';
+            str += `${this._cells[row][column].toString()}|`;
         }
         str += '\n';
 
         return str;
+    }
+
+    /**
+     * Convertis la grille en HTML.
+     * @return {string} La grille sous forme de HTML.
+     * @memberof Grid
+     */
+    public toHtml(): string {
+        let html = '';
+
+        for (let row = 0; row < this._size; row++) {
+            for (let column = 0; column < this._size; column++) {
+                html += this.cells[row][column].toHtml(row, column);
+            }
+        }
+
+        return html;
     }
 }
 

@@ -1,0 +1,75 @@
+@use "sass:list";
+@use "@/scss/mixins" as m;
+@use "@/scss/placeholders" as *;
+@use "@/scss/variables" as *;
+
+*,
+::before,
+::after {
+    margin: 0;
+    padding: 0;
+
+    box-sizing: border-box;
+
+    font-family: "Roboto", sans-serif;
+    font-style: normal;
+}
+
+#game {
+    &-container {
+        padding: 0.5rem;
+    }
+
+    &-header {
+        width: 100%;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &-infos {
+        display: flex;
+        gap: 5rem;
+        align-items: center;
+    }
+
+    &-grid {
+        margin: 0.5rem 0;
+
+        display: grid;
+        grid-template-columns: repeat(var(--grid-size), $game-cell-size);
+    }
+}
+
+#difficulty-select,
+#new-game {
+    padding: 0.5rem;
+}
+
+.game {
+    &-cell {
+        @include m.size($game-cell-size);
+
+        font-size: 2rem;
+        font-weight: 900;
+
+        background-color: #bdbdbd;
+        border: 1px solid #878787;
+
+        @extend %flex-center;
+
+        &--covered {
+            background-color: #bdbdbd;
+
+            box-shadow: inset 2px 2px #ffffff, inset -2px -2px #808080, inset 4px 4px #ffffff,
+                inset -4px -4px #808080;
+        }
+
+        @for $i from 1 through 8 {
+            &--#{$i} {
+                color: list.nth($cells-colors, $i);
+            }
+        }
+    }
+}
