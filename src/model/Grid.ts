@@ -246,6 +246,17 @@ class Grid {
     }
 
     /**
+     * Récupère une cellule de la grille.
+     * @private
+     * @param {Coordinates} coord - Les coordonnées de la cellule.
+     * @return {(Cell | null)} La cellule ou `null` si les coordonnées sont invalides.
+     * @memberof Grid
+     */
+    private getCell({ row, column }: Coordinates): Cell | null {
+        return this._cells[row]?.[column] ?? null;
+    }
+
+    /**
      * La taille de la grille.
      * @readonly
      * @type {number}
@@ -265,67 +276,14 @@ class Grid {
         return this._size * this._size;
     }
 
+    /**
+     * Les cellules de la grille.
+     * @readonly
+     * @type {ReadonlyArray<ReadonlyArray<Cell>>}
+     * @memberof Grid
+     */
     public get cells(): ReadonlyArray<ReadonlyArray<Cell>> {
         return this._cells;
-    }
-
-    /**
-     * Récupère une cellule de la grille.
-     * @param {Coordinates} coord - Les coordonnées de la cellule.
-     * @return {(Cell | null)} La cellule ou `null` si les coordonnées sont invalides.
-     * @memberof Grid
-     */
-    public getCell({ row, column }: Coordinates): Cell | null {
-        return this._cells[row]?.[column] ?? null;
-    }
-
-    /**
-     * Effectue une action du jeu.
-     * @param {Action} move - L'action à effectuer.
-     * @memberof Grid
-     */
-    public action({ coordinates, type }: Action) {
-        // Récupération de la cellule
-        const cell = this.getCell(coordinates);
-        if (!cell) {
-            throw new Error(
-                `Aucune cellule aux coordonnées (${coordinates.row}, ${coordinates.column}).`
-            );
-        }
-
-        switch (type) {
-            case ActionType.Discover:
-                // Découverte de la cellule
-                cell.discover();
-                if (!cell.hasMine) {
-                    // Découverte de ses voisines
-                    this.discoverNeighbors(coordinates);
-                }
-                break;
-
-            case ActionType.Mark:
-                cell.invertMarked();
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    /**
-     * Découvre toutes les mines de la grille.
-     * @memberof Grid
-     */
-    public discoverMines(): void {
-        for (let row = 0; row < this.size; row++) {
-            for (let column = 0; column < this.size; column++) {
-                const cell = this._cells[row][column];
-                console.log(cell);
-                if (cell.hasMine) {
-                    cell.discover();
-                }
-            }
-        }
     }
 
     /**
@@ -366,6 +324,54 @@ class Grid {
      */
     public get isEnd(): boolean {
         return this.isWin || this.isLoose;
+    }
+
+    /**
+     * Effectue une action du jeu.
+     * @param {Action} move - L'action à effectuer.
+     * @memberof Grid
+     */
+    public performAction({ coordinates, type }: Action) {
+        // Récupération de la cellule
+        const cell = this.getCell(coordinates);
+        if (!cell) {
+            throw new Error(
+                `Aucune cellule aux coordonnées (${coordinates.row}, ${coordinates.column}).`
+            );
+        }
+
+        switch (type) {
+            case ActionType.Discover:
+                // Découverte de la cellule
+                cell.discover();
+                if (!cell.hasMine) {
+                    // Découverte de ses voisines
+                    this.discoverNeighbors(coordinates);
+                }
+                break;
+
+            case ActionType.Mark:
+                cell.invertMarked();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Découvre toutes les mines de la grille.
+     * @memberof Grid
+     */
+    public discoverMines(): void {
+        for (let row = 0; row < this.size; row++) {
+            for (let column = 0; column < this.size; column++) {
+                const cell = this._cells[row][column];
+                if (cell.hasMine) {
+                    cell.discover();
+                }
+            }
+        }
     }
 
     /**

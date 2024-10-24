@@ -181,7 +181,7 @@ class Minesweeper {
             return;
         }
 
-        this._grid.action({ coordinates, type });
+        this._grid.performAction({ coordinates, type });
         this.render();
 
         if (this._grid.isEnd) {

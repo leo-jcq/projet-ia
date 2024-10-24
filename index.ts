@@ -110,7 +110,7 @@ async function main() {
             );
 
             // Exécution de l'action
-            grid.action({ coordinates: { row, column }, type });
+            grid.performAction({ coordinates: { row, column }, type });
         } catch (error) {
             console.error(error);
             game = false;
