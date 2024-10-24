@@ -130,9 +130,7 @@ class Cell {
     public toHtml(row: number, column: number): string {
         // Construction de la classe CSS
         const baseClass = 'game-cell';
-        let className = `${baseClass} ${baseClass}--${this._state} ${baseClass}--${
-            (row + column) % 2 === 0 ? 'odd' : 'even'
-        }`;
+        let className = `${baseClass} ${baseClass}--${this._state}`;
         if (this._state === CellState.Discovered) {
             className += ` ${baseClass}--${this._hasMine ? 'mine' : this.nbMinesAround}`;
         }
