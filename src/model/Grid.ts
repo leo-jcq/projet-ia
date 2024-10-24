@@ -74,33 +74,38 @@ class Grid {
         const { size, nbMines } = DifficultyParams[difficulty];
         this._size = size;
         this._nbMines = nbMines;
-        this._cells = Array.from({ length: size }, () =>
-            Array.from({ length: size }, () => new Cell(false))
-        );
+        this._cells = [];
 
-        this.initMines();
+        this.initCells();
         this.calculateNbMinesAround();
     }
 
     /**
-     * Initialise les mines dans la grille.
+     * Initialise les cellules dans la grille.
      * @private
      * @memberof Grid
      */
-    private initMines(): void {
+    private initCells(): void {
         let remainingMines = this._nbMines;
         let availableCells = this.nbCells;
 
-        // Placement aléatoire des mines
-        for (let row = 0; row < this._size && remainingMines > 0; row++) {
-            for (let col = 0; col < this._size && remainingMines > 0; col++) {
+        // Ajout des cellules
+        for (let row = 0; row < this._size; row++) {
+            const rowCells: Cell[] = [];
+            for (let col = 0; col < this._size; col++) {
+                // Détermine si il y a une mine ou non
+                let hasMine: boolean = false;
                 const probability = remainingMines / availableCells;
                 if (Math.random() < probability) {
-                    this._cells[row][col].putMine();
+                    hasMine = true;
                     remainingMines--;
                 }
+
+                // Ajout de la cellule
+                rowCells.push(new Cell(hasMine));
                 availableCells--;
             }
+            this._cells.push(rowCells);
         }
     }
 
@@ -265,6 +270,10 @@ class Grid {
         }
     }
 
+    /**
+     * Découvre toutes les mines de la grille.
+     * @memberof Grid
+     */
     public discoverMines(): void {
         for (let row = 0; row < this.size; row++) {
             for (let column = 0; column < this.size; column++) {

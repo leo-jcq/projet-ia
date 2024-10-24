@@ -81,14 +81,6 @@ class Cell {
     }
 
     /**
-     * Place une mine dans la cellule
-     * @memberof Cell
-     */
-    public putMine(): void {
-        this._hasMine = true;
-    }
-
-    /**
      * Découvre la case.
      * @memberof Cell
      */
