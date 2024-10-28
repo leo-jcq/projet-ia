@@ -1,24 +1,4 @@
-/**
- * Représente les états d'une case.
- * @export
- * @enum {number}
- */
-export enum CellState {
-    /**
-     * La case est couverte.
-     */
-    Covered = 'covered',
-
-    /**
-     * La case est marquée comme ayant une mine.
-     */
-    Marked = 'marked',
-
-    /**
-     * La case est découverte.
-     */
-    Discovered = 'discovered'
-}
+import CellState from '@/enums/CellState';
 
 /**
  * Représente une case du démineur.
@@ -89,10 +69,10 @@ class Cell {
     }
 
     /**
-     * Inverse l'état de marquage de la case.
+     * Marque ou démarque la case.
      * @memberof Cell
      */
-    public invertMarked(): void {
+    public toggleMarked(): void {
         if (this._state !== CellState.Discovered) {
             this._state = this._state === CellState.Marked ? CellState.Covered : CellState.Marked;
         }

@@ -1,4 +1,5 @@
-import Cell, { CellState } from '@/model/Cell';
+import CellState from '@/enums/CellState';
+import Cell from '@/model/Cell';
 import { describe, expect, it } from 'vitest';
 
 describe('Cell', () => {
@@ -55,7 +56,7 @@ describe('Cell', () => {
             const cell = new Cell(false);
 
             // Act
-            cell.invertMarked();
+            cell.toggleMarked();
 
             // Assert
             expect(cell.state).toBe(expected);
@@ -67,8 +68,8 @@ describe('Cell', () => {
             const cell = new Cell(false);
 
             // Act
-            cell.invertMarked();
-            cell.invertMarked();
+            cell.toggleMarked();
+            cell.toggleMarked();
 
             // Assert
             expect(cell.state).toBe(expected);
@@ -81,7 +82,7 @@ describe('Cell', () => {
             cell.discover();
 
             // Act
-            cell.invertMarked();
+            cell.toggleMarked();
 
             // Assert
             expect(cell.state).toBe(expected);
@@ -105,7 +106,7 @@ describe('Cell', () => {
             // Arrange
             const expected = '🚩';
             const cell = new Cell(false);
-            cell.invertMarked();
+            cell.toggleMarked();
 
             // Act
             const result = cell.toString();

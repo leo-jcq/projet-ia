@@ -1,5 +1,8 @@
-import Cell, { CellState } from '@/model/Cell';
-import Grid, { ActionType, Difficulty, DifficultyParams } from '@/model/Grid';
+import ActionType from '@/enums/ActionType';
+import CellState from '@/enums/CellState';
+import Difficulty from '@/enums/Difficulty';
+import Cell from '@/model/Cell';
+import Grid, { DifficultyParams } from '@/model/Grid';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('Grid', () => {

@@ -1,59 +1,8 @@
-import type { Action, Coordinates } from '../types/game';
-import Cell, { CellState } from './Cell';
-
-/**
- * Les actions possibles dans le jeu.
- * @export
- * @enum {string}
- */
-export enum ActionType {
-    /**
-     * Découvrir une case.
-     */
-    Discover = 'd',
-
-    /**
-     * Marquer une case.
-     */
-    Mark = 'm'
-}
-
-/**
- * Les difficultées du jeu.
- * @export
- * @enum {string}
- */
-export enum Difficulty {
-    /**
-     * Facile.
-     */
-    Easy = 'easy',
-
-    /**
-     * Moyen.
-     */
-    Medium = 'medium',
-
-    /**
-     * Difficile.
-     */
-    Hard = 'hard'
-}
-
-/**
- * Les paramètres d'une grille.
- */
-type GridParam = {
-    /**
-     * La taille de la grille.
-     */
-    size: number;
-
-    /**
-     * Le nombre de mines dans la grille.
-     */
-    nbMines: number;
-};
+import ActionType from '@/enums/ActionType';
+import CellState from '@/enums/CellState';
+import Difficulty from '@/enums/Difficulty';
+import type { Action, Coordinates, GridParam } from '../types/game';
+import Cell from './Cell';
 
 /**
  * Les paramètres des difficultées.
@@ -351,7 +300,7 @@ class Grid {
                 break;
 
             case ActionType.Mark:
-                cell.invertMarked();
+                cell.toggleMarked();
                 break;
 
             default:

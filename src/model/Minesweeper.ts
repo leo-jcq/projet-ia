@@ -1,5 +1,7 @@
+import ActionType from '@/enums/ActionType';
+import Difficulty from '@/enums/Difficulty';
 import { Coordinates } from '@/types/game';
-import Grid, { ActionType, Difficulty } from './Grid';
+import Grid from './Grid';
 
 /**
  * Classe représentant le jeu du démineur.
