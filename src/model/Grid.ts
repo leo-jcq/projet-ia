@@ -293,7 +293,7 @@ class Grid {
             case ActionType.Discover:
                 // Découverte de la cellule
                 cell.discover();
-                if (!cell.hasMine) {
+                if (!cell.hasMine && cell.state === CellState.Discovered) {
                     // Découverte de ses voisines
                     this.discoverNeighbors(coordinates);
                 }

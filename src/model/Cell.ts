@@ -65,7 +65,9 @@ class Cell {
      * @memberof Cell
      */
     public discover(): void {
-        this._state = CellState.Discovered;
+        if (this._state === CellState.Covered) {
+            this._state = CellState.Discovered;
+        }
     }
 
     /**

@@ -47,9 +47,22 @@ describe('Cell', () => {
             // Assert
             expect(cell.state).toBe(expected);
         });
+
+        it('should not discover the cell if it\'s marked', () => {
+            // Arrange
+            const expected = CellState.Marked;
+            const cell = new Cell(false);
+            cell.toggleMarked();
+
+            // Act
+            cell.discover();
+
+            // Assert
+            expect(cell.state).toBe(expected);
+        });
     });
 
-    describe('invertMarked', () => {
+    describe('toggleMarked', () => {
         it('should mark a covered cell', () => {
             // Arrange
             const expected = CellState.Marked;
