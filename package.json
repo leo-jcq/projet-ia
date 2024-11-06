@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "console": "ts-node index.ts",
-    "test": "vitest",
+    "test": "vitest watch",
+    "test:ci": "vitest run --reporter verbose",
     "lint": "eslint . --max-warnings 0",
     "build": "tsc && vite build",
     "preview": "vite preview"
