@@ -48,7 +48,7 @@ describe('Cell', () => {
             expect(cell.state).toBe(expected);
         });
 
-        it('should not discover the cell if it\'s marked', () => {
+        it("should not discover the cell if it's marked", () => {
             // Arrange
             const expected = CellState.Marked;
             const cell = new Cell(false);

@@ -1,5 +1,7 @@
+import ActionType from '@/enums/ActionType';
+import Difficulty from '@/enums/Difficulty';
 import { createInterface } from 'readline';
-import Grid, { ActionType, Difficulty } from './src/model/Grid';
+import Grid from './src/model/Grid';
 
 // Création de l'interface pour lire les entrées utilisateur
 const rl = createInterface({
@@ -22,7 +24,7 @@ async function ask(text: string): Promise<string> {
 
 /**
  * Fonction pour poser une question à l'utilisateur et vérifier la réponse.
- * @template T - Type de la réponse. 
+ * @template T - Type de la réponse.
  * @param {string} text - Prompt de la question.
  * @param {(value: string) => value is T} callback - Fonction de vérification de la réponse.
  * @return {Promise<T>} La réponse de l'utilisateur.

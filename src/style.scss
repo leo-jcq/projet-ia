@@ -18,6 +18,10 @@
 #game {
     &-container {
         padding: 0.5rem;
+
+        display: flex;
+        gap: 0.7rem;
+        flex-direction: column;
     }
 
     &-header {
@@ -35,16 +39,9 @@
     }
 
     &-grid {
-        margin: 0.5rem 0;
-
         display: grid;
         grid-template-columns: repeat(var(--grid-size), $game-cell-size);
     }
-}
-
-#difficulty-select,
-#new-game {
-    padding: 0.5rem;
 }
 
 .game {
@@ -72,4 +69,15 @@
             }
         }
     }
+
+    #difficulty-select,
+    &-btn {
+        padding: 0.5rem;
+    }
+}
+
+#delay {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
 }

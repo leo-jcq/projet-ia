@@ -5,7 +5,7 @@ import CellState from '@/enums/CellState';
  * @export
  * @class Cell
  */
-class Cell {
+export default class Cell {
     /**
      * Indique si la case est minée.
      * @private
@@ -124,5 +124,3 @@ class Cell {
         `;
     }
 }
-
-export default Cell;

@@ -31,8 +31,7 @@ export type GridParam = {
 };
 
 type BaseCellInfo = {
-    row: number;
-    column: number;
+    coordinates: Coordinates;
     cell: Cell;
 };
 

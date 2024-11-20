@@ -12,24 +12,36 @@
             rel="stylesheet"
         />
 
-        <script type="module" src="/src/main.ts"></script>
+        <script type="module" src="/src/main.ts" defer></script>
 
         <title>Projet IA | Démineur</title>
     </head>
     <body>
         <div id="game-container">
             <div id="game-header">
-                <select id="difficulty-select" value="easy">
-                    <option value="easy">Facile</option>
-                    <option value="medium">Moyen</option>
-                    <option value="hard">Difficile</option>
-                </select>
-                
-                <button class="game-btn" id="new-game">Nouvelle partie</button>
+                <div id="difficulty">
+                    <select id="difficulty-select">
+                        <option value="easy">Facile</option>
+                        <option value="medium">Moyen</option>
+                        <option value="hard">Difficile</option>
+                    </select>
+                    
+                </div>
+
+                <div id="delay">
+                    <label for="delay-input" id="delay-input-label"></label>
+                    <input type="range" id="delay-input" step="100" />
+                </div>
             </div>
+
+            <div id="game-actions">
+                <button class="game-btn" id="new-game">Nouvelle partie</button>
+                <button class="game-btn" id="start-game">Commencer</button>
+            </div>
+
             <div id="game-grid"></div>
-                
-            <div id="game-over" style="display: none;">
+
+            <div id="game-over" style="display: none">
                 <p id="game-over-message"></p>
                 <button class="game-btn" id="game-over-btn">Rejouer</button>
             </div>

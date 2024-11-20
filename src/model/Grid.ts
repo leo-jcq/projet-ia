@@ -28,7 +28,7 @@ export const DifficultyParams: Record<Difficulty, GridParam> = {
  * @export
  * @class Grid
  */
-class Grid {
+export default class Grid {
     /**
      * La taille de la grille.
      * @private
@@ -85,7 +85,7 @@ class Grid {
             const rowCells: Cell[] = [];
             for (let col = 0; col < this._size; col++) {
                 // Détermine si il y a une mine ou non
-                let hasMine: boolean = false;
+                let hasMine = false;
                 const probability = remainingMines / availableCells;
                 if (Math.random() < probability) {
                     hasMine = true;
@@ -109,70 +109,22 @@ class Grid {
         // Parcours de toutes les cellules
         for (let row = 0; row < this._size; row++) {
             for (let column = 0; column < this._size; column++) {
-                // Récupération de la cellule
                 const cell = this._cells[row][column];
 
-                // Récupération de ses voisines
-                const neighbors = this.getNeighbors({ row, column });
-
-                cell.nbMinesAround = neighbors.reduce(
-                    (count, neighbor) =>
-                        this._cells[neighbor.row][neighbor.column].hasMine ? count + 1 : count,
-                    0
-                );
+                // Calcul du nombre de mines
+                this.forEachNeighbors({ row, column }, (_, neighbor) => {
+                    if (neighbor.hasMine) {
+                        cell.nbMinesAround++;
+                    }
+                });
             }
         }
-    }
-
-    /**
-     * Les directions des voisines d'une cellule.
-     * @private
-     * @static
-     * @readonly
-     * @type {ReadonlyArray<Coordinates>}
-     * @memberof Grid
-     */
-    private static readonly neighborsDirections: ReadonlyArray<Coordinates> = [
-        { row: -1, column: -1 }, // Haut-gauche
-        { row: -1, column: 0 }, // Haut
-        { row: -1, column: 1 }, // Haut-droite
-        { row: 0, column: -1 }, // Gauche
-        { row: 0, column: 1 }, // Droite
-        { row: 1, column: -1 }, // Bas-gauche
-        { row: 1, column: 0 }, // Bas
-        { row: 1, column: 1 } // Bas-droite
-    ];
-
-    /**
-     * Récupère les cellules voisines d'une cellule.
-     * @private
-     * @param {Coordinates} - Les coordonnées de la cellule.
-     * @return {Coordinates[]} Les coordonnées des cellules voisines.
-     * @memberof Grid
-     */
-    private getNeighbors({ row, column }: Coordinates): Coordinates[] {
-        // Initialisation de la liste des voisines
-        const neighbors: Coordinates[] = [];
-
-        for (const { row: dRow, column: dCol } of Grid.neighborsDirections) {
-            // Calcul des coordonnées de la voisine
-            const newRow = row + dRow;
-            const newCol = column + dCol;
-
-            // Vérification des limites de la grille
-            if (newRow >= 0 && newRow < this._size && newCol >= 0 && newCol < this._size) {
-                // Ajout de la voisine
-                neighbors.push({ row: newRow, column: newCol });
-            }
-        }
-
-        return neighbors;
     }
 
     /**
      * Découvre les voisines d'une case si elle n'a pas de mines autour d'elle.
      * @private
-     * @param {Coordinates} coordinates Les coordonnées de la case.
+     * @param {Coordinates} coordinates - Les coordonnées de la case.
      * @memberof Grid
      */
     private discoverNeighbors(coordinates: Coordinates) {
@@ -180,29 +132,16 @@ class Grid {
         const cell = this._cells[coordinates.row][coordinates.column];
         // Si elle n'a pas de mines autour
         if (cell.nbMinesAround === 0) {
-            // Récupération de ses voisines
-            const neighbors = this.getNeighbors(coordinates);
-            for (const neighbor of neighbors) {
-                const neighborCell = this._cells[neighbor.row][neighbor.column];
-                if (neighborCell.state !== CellState.Discovered) {
+            // Découverte de ses voisines
+            this.forEachNeighbors(coordinates, (nCoordinates, neighbor) => {
+                if (neighbor.state !== CellState.Discovered) {
                     // Découverte de la case
-                    neighborCell.discover();
+                    neighbor.discover();
                     // Découverte de ses voisines
-                    this.discoverNeighbors(neighbor);
+                    this.discoverNeighbors(nCoordinates);
                 }
-            }
+            });
         }
-    }
-
-    /**
-     * Récupère une cellule de la grille.
-     * @private
-     * @param {Coordinates} coord - Les coordonnées de la cellule.
-     * @return {(Cell | null)} La cellule ou `null` si les coordonnées sont invalides.
-     * @memberof Grid
-     */
-    private getCell({ row, column }: Coordinates): Cell | null {
-        return this._cells[row]?.[column] ?? null;
     }
 
     /**
@@ -223,6 +162,16 @@ class Grid {
      */
     public get nbCells(): number {
         return this._size * this._size;
+    }
+
+    /**
+     * Le nombre de mines de la grille.
+     * @readonly
+     * @type {number}
+     * @memberof Grid
+     */
+    public get nbMines(): number {
+        return this._nbMines;
     }
 
     /**
@@ -276,11 +225,43 @@ class Grid {
     }
 
     /**
-     * Effectue une action du jeu.
-     * @param {Action} move - L'action à effectuer.
+     * Récupère une cellule de la grille.
+     * @private
+     * @param {Coordinates} coordinates - Les coordonnées de la cellule.
+     * @return {(Cell | undefined)} La cellule ou `undefined` si les coordonnées sont invalides.
      * @memberof Grid
      */
-    public performAction({ coordinates, type }: Action) {
+    public getCell(coordinates: Coordinates): Cell | undefined {
+        return this._cells[coordinates.row]?.[coordinates.column];
+    }
+
+    public forEachNeighbors(
+        coordinates: Coordinates,
+        callback: (nCoordinates: Coordinates, neighbor: Cell) => unknown
+    ): void {
+        const { row, column } = coordinates;
+
+        for (let nRow = row - 1; nRow <= row + 1; nRow++) {
+            for (let nCol = column - 1; nCol <= column + 1; nCol++) {
+                // Récupération du voisin
+                const nCoordinates: Coordinates = { row: nRow, column: nCol };
+                const neighbor = this.getCell(nCoordinates);
+
+                // Exécution du callback si le voisin existe
+                if (neighbor) {
+                    callback(nCoordinates, neighbor);
+                }
+            }
+        }
+    }
+
+    /**
+     * Effectue une action du jeu.
+     * @param {Action} action - L'action à effectuer.
+     * @memberof Grid
+     */
+    public performAction(action: Action) {
+        const { coordinates, type } = action;
         // Récupération de la cellule
         const cell = this.getCell(coordinates);
         if (!cell) {
@@ -360,7 +341,7 @@ class Grid {
     /**
      * Affiche les numéros des colonnes.
      * @private
-     * @return {string} - Les numéros des colonnes sous forme de string.
+     * @return {string} Les numéros des colonnes sous forme de string.
      * @memberof Grid
      */
     private printColNumbers(): string {
@@ -383,7 +364,7 @@ class Grid {
      * Affiche le numéro de la ligne.
      * @private
      * @param {number} row
-     * @return {string} - Le numéro de la ligne sous forme de string.
+     * @return {string} Le numéro de la ligne sous forme de string.
      * @memberof Grid
      */
     private printRowNumber(row: number): string {
@@ -404,7 +385,7 @@ class Grid {
      * Affiche les cellules d'une ligne.
      * @private
      * @param {number} row - Le numéro de la ligne.
-     * @return {string} - Les cellules de la ligne sous forme de string.
+     * @return {string} Les cellules de la ligne sous forme de string.
      * @memberof Grid
      */
     private printCells(row: number): string {
@@ -435,5 +416,3 @@ class Grid {
         return html;
     }
 }
-
-export default Grid;
