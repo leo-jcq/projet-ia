@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "console": "ts-node index.ts",
     "test": "vitest watch",
-    "test:ci": "vitest run --reporter verbose",
+    "test:ci": "vitest run",
     "lint": "eslint . --max-warnings 0",
     "build": "tsc && vite build",
     "preview": "vite preview"
