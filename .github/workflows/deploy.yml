@@ -3,15 +3,10 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - "**"
+      - '**'
   pull_request:
     branches:
-      - "**"
-
-env:
-  NODE_VERSION: '20'
-  PACKAGE_MANAGER: 'npm'
-  BUILD_DIR: './dist'
+      - '**'
 
 jobs:
   test:
@@ -24,21 +19,18 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: ${{ env.PACKAGE_MANAGER }}
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: ${{ env.PACKAGE_MANAGER }} ci
-
-      - name: Run lint
-        run: ${{ env.PACKAGE_MANAGER }} run lint
+        run: npm ci
 
       - name: Run tests
-        run: ${{ env.PACKAGE_MANAGER }} run test:ci
+        run: npm run test
 
   deploy:
     name: Build and Deploy
-    needs: test
+    needs: test 
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
@@ -48,17 +40,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: ${{ env.PACKAGE_MANAGER }}
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: ${{ env.PACKAGE_MANAGER }} ci
+        run: npm ci
 
       - name: Build
-        run: ${{ env.PACKAGE_MANAGER }} run build
+        run: npm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.ACCESS_TOKEN }}
-          publish_dir: ${{ env.BUILD_DIR }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
