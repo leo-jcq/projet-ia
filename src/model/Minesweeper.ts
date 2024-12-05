@@ -1,6 +1,6 @@
 import { DEFAULT_DELAY, DEFAULT_DIFFICULTY, MAX_DELAY, MIN_DELAY } from '@/constants/defaults';
 import Difficulty from '@/enums/Difficulty';
-import DijkstraBot from './DijkstraBot';
+import DijkstraBot from './MinesweeperBot';
 
 /**
  * Classe représentant le jeu du démineur.
