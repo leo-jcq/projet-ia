@@ -88,6 +88,11 @@
             inset -4px -4px #808080;
     }
 
+    &--current {
+        outline: 3px solid red;
+        z-index: 99;
+    }
+
     @for $i from 1 through 8 {
         &--#{$i} {
             color: list.nth($cells-colors, $i);

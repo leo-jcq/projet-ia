@@ -12,7 +12,7 @@ export const DEFAULT_DIFFICULTY = Difficulty.Easy;
  * @constant {number}
  * @export
  */
-export const DEFAULT_DELAY = 500;
+export const DEFAULT_DELAY = 100;
 
 /**
  * Le délai minimum.
@@ -26,4 +26,4 @@ export const MIN_DELAY = 0;
  * @constant {number}
  * @export
  */
-export const MAX_DELAY = 2000;
+export const MAX_DELAY = 500;

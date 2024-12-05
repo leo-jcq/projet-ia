@@ -27,17 +27,31 @@
                     </select>
                 </div>
 
-                <div id="delay">
-                    <label for="delay-input" id="delay-input-label"></label>
-                    <input type="range" id="delay-input" step="100" />
+                <div id="settings">
+                    <div id="delay">
+                        <label for="delay-input" id="delay-input-label"></label>
+                        <input
+                            type="range"
+                            id="delay-input"
+                            step="10"
+                            min="0"
+                            max="500"
+                            value="100"
+                        />
+                    </div>
+
+                    <div id="show-full">
+                        <label for="show-full-input" id="show-full-input-label">Montrere toutes les étapes ?</label>
+                        <input type="checkbox" id="show-full-input">
+                    </div>
                 </div>
             </div>
 
             <div id="game-actions">
                 <button class="game-btn" id="new-game">Nouvelle partie</button>
                 <button class="game-btn" id="start-game">Commencer</button>
-                
-                <p id="game-over-message" style="display: none;"></p>
+
+                <p id="game-over-message" style="display: none"></p>
             </div>
 
             <div id="grid-container">

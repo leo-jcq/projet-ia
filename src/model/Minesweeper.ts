@@ -2,7 +2,6 @@ import { DEFAULT_DELAY, DEFAULT_DIFFICULTY, MAX_DELAY, MIN_DELAY } from '@/const
 import Difficulty from '@/enums/Difficulty';
 import DijkstraBot from './DijkstraBot';
 
-
 /**
  * Classe représentant le jeu du démineur.
  * @export
@@ -43,9 +42,29 @@ export default class Minesweeper {
      */
     private readonly _difficultySelect: HTMLSelectElement;
 
+    /**
+     * L'input pour le délais
+     * @private
+     * @type {HTMLInputElement}
+     * @memberof Minesweeper
+     */
     private readonly _delayInput: HTMLInputElement;
 
+    /**
+     * Le label pour le délais
+     * @private
+     * @type {HTMLElement}
+     * @memberof Minesweeper
+     */
     private readonly _delayLabel: HTMLElement;
+
+    /**
+     * L'input pour montrer toute la résolution.
+     * @private
+     * @type {HTMLInputElement}
+     * @memberof Minesweeper
+     */
+    private readonly _showFullInput: HTMLInputElement;
 
     /**
      * Le bouton pour créer une nouvelle partie.
@@ -100,10 +119,19 @@ export default class Minesweeper {
         this._delayInput.min = MIN_DELAY.toString();
         this._delayInput.max = MAX_DELAY.toString();
         this._delayLabel = document.getElementById('delay-input-label')!;
-        this.handleDelayChange();
+        this.displayDelay();
 
-        this._bot = new DijkstraBot(this.getCurrentDifficulty(), this._gameGrid, this._history);
+        // Montrer tout
+        this._showFullInput = document.getElementById('show-full-input') as HTMLInputElement;
 
+        // Bot
+        this._bot = new DijkstraBot(
+            this.getCurrentDifficulty(),
+            parseInt(this._delayInput.value),
+            this._showFullInput.checked,
+            this._gameGrid,
+            this._history
+        );
         this._isSolving = false;
 
         // Inits
@@ -133,30 +161,16 @@ export default class Minesweeper {
         return this._difficultySelect.value as Difficulty;
     }
 
-    private getCurrentDelay(): number {
-        // Récupération du délais
-        let delay = parseInt(this._delayInput.value);
-
-        // Vérification de la valeur
-        if (isNaN(delay) || delay < MIN_DELAY || delay > MAX_DELAY) {
-            delay = DEFAULT_DELAY;
-            this._delayInput.value = delay.toString();
-        }
-
-        this._delayLabel.textContent = `Délais : ${delay}ms`;
-        return delay;
-    }
-
     /**
      * Initialise les écouteurs d'événements.
      * @private
      * @memberof Minesweeper
      */
     private initEventListeners(): void {
-        // Nouvelle partie
-        this._newGameBtn.addEventListener('click', this.newGame.bind(this));
         this._difficultySelect.addEventListener('change', this.newGame.bind(this));
         this._delayInput.addEventListener('input', this.handleDelayChange.bind(this));
+        this._showFullInput.addEventListener('change', this.handleShowFullChange.bind(this));
+        this._newGameBtn.addEventListener('click', this.newGame.bind(this));
         this._startGameBtn.addEventListener('click', this.startGame.bind(this));
     }
 
@@ -167,15 +181,54 @@ export default class Minesweeper {
      */
     private newGame(): void {
         this._bot.stopSolving();
-        this._bot = new DijkstraBot(this.getCurrentDifficulty(), this._gameGrid, this._history);
+        this._bot = new DijkstraBot(
+            this.getCurrentDifficulty(),
+            parseInt(this._delayInput.value),
+            this._showFullInput.checked,
+            this._gameGrid,
+            this._history
+        );
         this._gameGrid.style.setProperty('--grid-size', this._bot.grid.size.toString());
         this._gameOverMessage.style.display = 'none';
         this._history.textContent = '';
         this._bot.display();
     }
-
+ 
+    /**
+     * Gère le changement de l'input pour le délais.
+     * @private
+     * @memberof Minesweeper
+     */
     private handleDelayChange(): void {
-        this._delayInput.innerHTML = `Délais : ${this.getCurrentDelay()}ms`;
+        // Récupération du délais
+        let delay = parseInt(this._delayInput.value);
+
+        // Vérification de la valeur
+        if (isNaN(delay) || delay < MIN_DELAY || delay > MAX_DELAY) {
+            delay = DEFAULT_DELAY;
+            this._delayInput.value = delay.toString();
+        }
+
+        this.displayDelay();
+        this._bot.delay = delay;
+    }
+
+    /**
+     * Affiche le délais actuel.
+     * @private
+     * @memberof Minesweeper
+     */
+    private displayDelay(): void {
+        this._delayLabel.textContent = `Délais : ${this._delayInput.value}ms`;
+    }
+
+    /**
+     * Gère le changement de l'input pour montrer toute la résolution.
+     * @private
+     * @memberof Minesweeper
+     */
+    private handleShowFullChange(): void {
+        this._bot.showFullSolving = this._showFullInput.checked;
     }
 
     /**
@@ -188,7 +241,7 @@ export default class Minesweeper {
         if (!this._isSolving) {
             // Résolution
             this._isSolving = true;
-            await this._bot.solve(this.getCurrentDelay());
+            await this._bot.solve();
             this._isSolving = false;
 
             // Affichage du message de fin

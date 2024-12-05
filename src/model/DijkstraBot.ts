@@ -1,4 +1,4 @@
-import { DEFAULT_DELAY } from '@/constants/defaults';
+import { MAX_DELAY, MIN_DELAY } from '@/constants/defaults';
 import ActionType, { ActionTypeToString } from '@/enums/ActionType';
 import CellState from '@/enums/CellState';
 import Difficulty from '@/enums/Difficulty';
@@ -28,6 +28,21 @@ export default class DijkstraBot {
      * @memberof DijkstraBot
      */
     private readonly _knownGrid: CellInfo[][];
+
+    /**
+     * Le délai entre chaque tour.
+     * @private
+     * @type {number}
+     * @memberof DijkstraBot
+     */
+    private _delay: number;
+
+    /**
+     * Indique si il faut montrer toute la résolution.
+     * @type {boolean}
+     * @memberof DijkstraBot
+     */
+    public showFullSolving: boolean;
 
     /**
      * Indique si le bot doit continuer de résoudre le démineur.
@@ -62,9 +77,17 @@ export default class DijkstraBot {
      * @param {HTMLElement} [history] - L'élément HTML de l'historique des actions du bot.
      * @memberof DijkstraBot
      */
-    public constructor(difficulty: Difficulty, gameGrid?: HTMLElement, history?: HTMLElement) {
+    public constructor(
+        difficulty: Difficulty,
+        delay: number,
+        showFullSolving: boolean,
+        gameGrid?: HTMLElement,
+        history?: HTMLElement
+    ) {
         this.grid = new Grid(difficulty);
         this._knownGrid = [];
+        this._delay = delay;
+        this.showFullSolving = showFullSolving;
         this._continueSolve = true;
         this._gameGrid = gameGrid;
         this._history = history;
@@ -149,10 +172,13 @@ export default class DijkstraBot {
      * @return {(Action | null)} L'action sûr à effectuer, ou `null` si aucune action sûr n'est trouvée.
      * @memberof DijkstraBot
      */
-    private findSafeAction(): Action | null {
+    private async findSafeAction(): Promise<Action | null> {
         // Parcours des cellules
         for (let row = 0; row < this.grid.size; row++) {
             for (let column = 0; column < this.grid.size; column++) {
+                if (this.showFullSolving) {
+                    this.display({ row, column });
+                }
                 // Récupération de la cellule
                 const cell = this._knownGrid[row][column];
 
@@ -191,6 +217,10 @@ export default class DijkstraBot {
                             coordinates: coveredNeighbors[0]
                         };
                     }
+
+                    if (this.showFullSolving) {
+                        await wait(this._delay);
+                    }
                 }
             }
         }
@@ -205,7 +235,7 @@ export default class DijkstraBot {
      * @return {(Action | null)} Le mouvement le moins risqué à effectuer, ou `null` si aucun mouvement n'est trouvé.
      * @memberof DijkstraBot
      */
-    private findLeastRiskyMove(): Action | null {
+    private async findLeastRiskyMove(): Promise<Action | null> {
         // Initialisation de la liste des probabilités qu'il ait une mine pour chaque coordonnée
         const probabilities: {
             coordinates: Coordinates;
@@ -225,16 +255,23 @@ export default class DijkstraBot {
         // Parcours des cellules
         for (let row = 0; row < this.grid.size; row++) {
             for (let column = 0; column < this.grid.size; column++) {
+                if (this.showFullSolving) {
+                    this.display({ row, column });
+                }
                 // Si la cellule est couverte
                 if (this._knownGrid[row][column].state === CellState.Covered) {
                     const coordinates: Coordinates = { row, column };
                     // Calcul de la probabilité qu'elle ait une mine
-                    const probability = this.calculateMineProbability(
+                    const probability = await this.calculateMineProbability(
                         coordinates,
                         defaultProbability
                     );
                     // Ajout de la probabilité
                     probabilities.push({ coordinates, probability });
+                }
+
+                if (this.showFullSolving) {
+                    await wait(this._delay);
                 }
             }
         }
@@ -261,7 +298,16 @@ export default class DijkstraBot {
      * @return {number} La probabilité qu'une cellule contienne une mine.
      * @memberof DijkstraBot
      */
-    private calculateMineProbability(coordinates: Coordinates, defaultProbability: number): number {
+    private async calculateMineProbability(
+        coordinates: Coordinates,
+        defaultProbability: number
+    ): Promise<number> {
+        if (this.showFullSolving) {
+            // Attente et affichage
+            await wait(this.delay);
+            this.display(coordinates);
+        }
+
         // Récupération des voisines découvertes
         const discoveredNeighbors = this.getNeighbors(coordinates).filter(
             (n) => this._knownGrid[n.row][n.column].state === CellState.Discovered
@@ -279,6 +325,12 @@ export default class DijkstraBot {
 
         // Parcours des voisines découvertes
         for (const neighbor of discoveredNeighbors) {
+            if (this.showFullSolving) {
+                // Attente et affichage
+                await wait(this.delay);
+                this.display(coordinates);
+            }
+
             // Récupération de la cellule
             const cell = this._knownGrid[neighbor.row][neighbor.column];
 
@@ -327,14 +379,42 @@ export default class DijkstraBot {
     }
 
     /**
+     * Le délai entre chaque tour.
+     * @type {number}
+     * @memberof DijkstraBot
+     */
+    public get delay(): number {
+        return this._delay;
+    }
+
+    /**
+     * Le délai entre chaque tour.
+     * @type {number}
+     * @memberof DijkstraBot
+     */
+    public set delay(value: number) {
+        if (value >= MIN_DELAY && value < MAX_DELAY) {
+            this._delay = value;
+        }
+    }
+
+    /**
      * Affiche la grille du démineur.
      * @memberof DijkstraBot
      */
-    public display(): void {
+    public display(current?: Coordinates): void {
         // Si on a l'élement HTML de la grille
         if (this._gameGrid) {
             // Affichage de la grille en HTML
             this._gameGrid.innerHTML = this.grid.toHtml();
+            if (current) {
+                const currentElement = document.querySelector<HTMLDivElement>(
+                    `.game-cell[data-row="${current.row}"][data-column="${current.column}"]`
+                );
+                if (currentElement) {
+                    currentElement.classList.add('game-cell--current');
+                }
+            }
         } else {
             // Sinon affichage dans la console
             console.clear();
@@ -352,20 +432,25 @@ export default class DijkstraBot {
 
     /**
      * Résout le démineur.
-     * @param {number} [delay=DEFAULT_DELAY] - Le délai entre chaque tour.
      * @memberof DijkstraBot
      */
-    public async solve(delay: number = DEFAULT_DELAY): Promise<void> {
-        while (!this.grid.isEnd && this._continueSolve) {
-            // Affichage
-            this.display();
+    public async solve(): Promise<void> {
+        // Premier coup
+        const firstAction: Action = {
+            coordinates: { row: 0, column: 0 },
+            type: ActionType.Discover
+        };
+        this.display(this.showFullSolving ? firstAction.coordinates : undefined);
+        this.grid.performAction(firstAction);
+        this.display(this.showFullSolving ? firstAction.coordinates : undefined);
 
+        while (!this.grid.isEnd && this._continueSolve) {
             // Mise à jour de la grille connue avec les informations actuelles
             this.updateKnownGrid();
 
-            let action: Action | null = this.findSafeAction();
+            let action = await this.findSafeAction();
             if (!action) {
-                action = this.findLeastRiskyMove();
+                action = await this.findLeastRiskyMove();
 
                 // Aucune action trouvée
                 if (!action) {
@@ -373,11 +458,20 @@ export default class DijkstraBot {
                 }
             }
 
+            if (this.showFullSolving) {
+                this.display(action.coordinates);
+            }
+
             this.grid.performAction(action);
             this.displayAction(action);
 
+            if (this.showFullSolving) {
+                this.display(action.coordinates);
+            }
+
             // Attente avant le prochain tour
-            await wait(delay);
+            this.display();
+            await wait(this._delay);
         }
 
         // Marquage des mines restantes si on a gagné
@@ -403,7 +497,7 @@ export default class DijkstraBot {
                         this.displayAction(action);
 
                         // Attente
-                        await wait(delay);
+                        await wait(this._delay);
                     }
                 }
             }
