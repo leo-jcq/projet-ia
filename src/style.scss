@@ -15,69 +15,82 @@
     font-style: normal;
 }
 
-#game {
-    &-container {
-        padding: 0.5rem;
+#game-container {
+    padding: 0.5rem;
 
-        display: flex;
-        gap: 0.7rem;
-        flex-direction: column;
-    }
-
-    &-header {
-        width: 100%;
-
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    &-infos {
-        display: flex;
-        gap: 5rem;
-        align-items: center;
-    }
-
-    &-grid {
-        display: grid;
-        grid-template-columns: repeat(var(--grid-size), $game-cell-size);
-    }
+    display: flex;
+    gap: 0.7rem;
+    flex-direction: column;
 }
 
-.game {
-    &-cell {
-        @include m.size($game-cell-size);
+#game-header {
+    width: 100%;
 
-        font-size: 2rem;
-        font-weight: 900;
-
-        background-color: #bdbdbd;
-        border: 1px solid #878787;
-
-        @extend %flex-center;
-
-        &--covered {
-            background-color: #bdbdbd;
-
-            box-shadow: inset 2px 2px #ffffff, inset -2px -2px #808080, inset 4px 4px #ffffff,
-                inset -4px -4px #808080;
-        }
-
-        @for $i from 1 through 8 {
-            &--#{$i} {
-                color: list.nth($cells-colors, $i);
-            }
-        }
-    }
-
-    #difficulty-select,
-    &-btn {
-        padding: 0.5rem;
-    }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 #delay {
     display: flex;
     gap: 0.3rem;
     align-items: center;
+}
+
+#game-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#game-over-message {
+    margin-left: 8px;
+
+    font-size: 1.1rem;
+}
+
+#grid-container {
+    display: flex;
+    gap: 32px;
+}
+
+#game-grid {
+    height: min-content;
+
+    display: grid;
+    grid-template-columns: repeat(calc(var(--grid-size) + 1), $game-cell-size);
+    grid-template-rows: repeat(calc(var(--grid-size) + 1), $game-cell-size);
+}
+
+#difficulty-select,
+.game-btn {
+    padding: 0.5rem;
+}
+
+.game-cell,
+.grid-number {
+    @include m.size($game-cell-size);
+
+    @extend %flex-center;
+}
+
+.game-cell {
+    font-size: 2rem;
+    font-weight: 900;
+
+    background-color: #bdbdbd;
+    border: 1px solid #878787;
+
+    &--covered {
+        background-color: #bdbdbd;
+
+        box-shadow: inset 2px 2px #ffffff, inset -2px -2px #808080, inset 4px 4px #ffffff,
+            inset -4px -4px #808080;
+    }
+
+    @for $i from 1 through 8 {
+        &--#{$i} {
+            color: list.nth($cells-colors, $i);
+        }
+    }
 }

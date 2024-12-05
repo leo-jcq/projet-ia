@@ -16,3 +16,8 @@ enum ActionType {
 }
 
 export default ActionType;
+
+export const ActionTypeToString: Record<ActionType, string> = {
+    [ActionType.Discover]: 'Découverte',
+    [ActionType.Mark]: 'Marquage'
+};

@@ -1,8 +1,8 @@
 import ActionType from '@/enums/ActionType';
 import CellState from '@/enums/CellState';
-import Difficulty from '@/enums/Difficulty';
+import Difficulty, { DifficultyParams } from '@/enums/Difficulty';
 import Cell from '@/model/Cell';
-import Grid, { DifficultyParams } from '@/model/Grid';
+import Grid from '@/model/Grid';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('Grid', () => {
@@ -92,7 +92,7 @@ describe('Grid', () => {
     describe('discoverNeighbors', () => {
         it('should discover neighbors cells when a empty cell is discovered', () => {
             // Arrange
-            // Force une cellul à ne pas avoir de mines
+            // Force une cellule à ne pas avoir de mines
             const row = 5;
             const column = 5;
             const cell = grid.cells[row][column];
@@ -153,19 +153,5 @@ describe('Grid', () => {
         });
     });
 
-    describe('discoverMines', () => {
-        it('should discover all mines', () => {
-            // Act
-            grid.discoverMines();
-
-            // Assert
-            grid.cells.forEach((row) => {
-                row.forEach((cell) => {
-                    if (cell.hasMine) {
-                        expect(cell.state).toBe(CellState.Discovered);
-                    }
-                });
-            });
-        });
-    });
+    // TODO: nbCells, nbMinesLeft
 });

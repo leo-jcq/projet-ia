@@ -1,27 +1,8 @@
 import ActionType from '@/enums/ActionType';
 import CellState from '@/enums/CellState';
-import Difficulty from '@/enums/Difficulty';
-import type { Action, Coordinates, GridParam } from '../types/game';
+import Difficulty, { DifficultyParams } from '@/enums/Difficulty';
+import type { Action, Coordinates } from '../types/game';
 import Cell from './Cell';
-
-/**
- * Les paramètres des difficultées.
- * @type {Record<Difficulty, GridParam>}
- */
-export const DifficultyParams: Record<Difficulty, GridParam> = {
-    [Difficulty.Easy]: {
-        size: 10,
-        nbMines: 10
-    },
-    [Difficulty.Medium]: {
-        size: 18,
-        nbMines: 40
-    },
-    [Difficulty.Hard]: {
-        size: 24,
-        nbMines: 99
-    }
-};
 
 /**
  * Représente la grille du démineur.
@@ -122,6 +103,46 @@ export default class Grid {
     }
 
     /**
+     * Récupère une cellule de la grille.
+     * @private
+     * @param {Coordinates} coordinates - Les coordonnées de la cellule.
+     * @return {(Cell | undefined)} La cellule ou `undefined` si les coordonnées sont invalides.
+     * @memberof Grid
+     */
+    private getCell(coordinates: Coordinates): Cell | undefined {
+        return this._cells[coordinates.row]?.[coordinates.column];
+    }
+
+    /**
+     * Parcours les voisins d'une cellule.
+     * @private
+     * @param {Coordinates} coordinates - Les coordonnées de la cellule.
+     * @param {(nCoordinates: Coordinates, neighbor: Cell) => unknown} callback - Le callback à exécuter pour chaque voisin.
+     * @memberof Grid
+     */
+    private forEachNeighbors(
+        coordinates: Coordinates,
+        callback: (nCoordinates: Coordinates, neighbor: Cell) => unknown
+    ): void {
+        //
+        const { row, column } = coordinates;
+
+        // Parcours des voisins
+        for (let nRow = row - 1; nRow <= row + 1; nRow++) {
+            for (let nCol = column - 1; nCol <= column + 1; nCol++) {
+                // Récupération du voisin
+                const nCoordinates: Coordinates = { row: nRow, column: nCol };
+                const neighbor = this.getCell(nCoordinates);
+
+                // Exécution du callback si le voisin existe
+                if (neighbor) {
+                    callback(nCoordinates, neighbor);
+                }
+            }
+        }
+    }
+
+    /**
      * Découvre les voisines d'une case si elle n'a pas de mines autour d'elle.
      * @private
      * @param {Coordinates} coordinates - Les coordonnées de la case.
@@ -184,6 +205,13 @@ export default class Grid {
         return this._cells;
     }
 
+    public get nbMinesLeft(): number {
+        // Récupération des cellules maruquées
+        const markedCells = this._cells.flat().filter((cell) => cell.state === CellState.Marked);
+        // Calcul du nombre de mines restantes
+        return this.nbMines - markedCells.length;
+    }
+
     /**
      * Indique si la partie est gagnée, toutes les mines :
      * - minées ne sont pas découvertes
@@ -193,13 +221,13 @@ export default class Grid {
      * @memberof Grid
      */
     public get isWin(): boolean {
-        return this._cells.every((row) =>
-            row.every(
+        return this._cells
+            .flat()
+            .every(
                 (cell) =>
                     (cell.hasMine && cell.state !== CellState.Discovered) ||
                     (!cell.hasMine && cell.state === CellState.Discovered)
-            )
-        );
+            );
     }
 
     /**
@@ -209,9 +237,9 @@ export default class Grid {
      * @memberof Grid
      */
     public get isLoose(): boolean {
-        return this._cells.some((row) =>
-            row.some((cell) => cell.state === CellState.Discovered && cell.hasMine)
-        );
+        return this._cells
+            .flat()
+            .some((cell) => cell.state === CellState.Discovered && cell.hasMine);
     }
 
     /**
@@ -222,37 +250,6 @@ export default class Grid {
      */
     public get isEnd(): boolean {
         return this.isWin || this.isLoose;
-    }
-
-    /**
-     * Récupère une cellule de la grille.
-     * @private
-     * @param {Coordinates} coordinates - Les coordonnées de la cellule.
-     * @return {(Cell | undefined)} La cellule ou `undefined` si les coordonnées sont invalides.
-     * @memberof Grid
-     */
-    public getCell(coordinates: Coordinates): Cell | undefined {
-        return this._cells[coordinates.row]?.[coordinates.column];
-    }
-
-    public forEachNeighbors(
-        coordinates: Coordinates,
-        callback: (nCoordinates: Coordinates, neighbor: Cell) => unknown
-    ): void {
-        const { row, column } = coordinates;
-
-        for (let nRow = row - 1; nRow <= row + 1; nRow++) {
-            for (let nCol = column - 1; nCol <= column + 1; nCol++) {
-                // Récupération du voisin
-                const nCoordinates: Coordinates = { row: nRow, column: nCol };
-                const neighbor = this.getCell(nCoordinates);
-
-                // Exécution du callback si le voisin existe
-                if (neighbor) {
-                    callback(nCoordinates, neighbor);
-                }
-            }
-        }
     }
 
     /**
@@ -286,21 +283,6 @@ export default class Grid {
 
             default:
                 break;
-        }
-    }
-
-    /**
-     * Découvre toutes les mines de la grille.
-     * @memberof Grid
-     */
-    public discoverMines(): void {
-        for (let row = 0; row < this.size; row++) {
-            for (let column = 0; column < this.size; column++) {
-                const cell = this._cells[row][column];
-                if (cell.hasMine) {
-                    cell.discover();
-                }
-            }
         }
     }
 
@@ -405,9 +387,16 @@ export default class Grid {
      * @memberof Grid
      */
     public toHtml(): string {
-        let html = '';
+        let html = ``;
+
+        // Ajout des numéros de colonnes
+        html += `<span class="grid-number"></span>`;
+        for (let column = 0; column < this._size; column++) {
+            html += `<span class="grid-number">${column + 1}</span>`;
+        }
 
         for (let row = 0; row < this._size; row++) {
+            html += `<span class="grid-number">${row + 1}</span>`;
             for (let column = 0; column < this._size; column++) {
                 html += this.cells[row][column].toHtml(row, column);
             }

@@ -25,7 +25,6 @@
                         <option value="medium">Moyen</option>
                         <option value="hard">Difficile</option>
                     </select>
-                    
                 </div>
 
                 <div id="delay">
@@ -37,13 +36,14 @@
             <div id="game-actions">
                 <button class="game-btn" id="new-game">Nouvelle partie</button>
                 <button class="game-btn" id="start-game">Commencer</button>
+                
+                <p id="game-over-message" style="display: none;"></p>
             </div>
 
-            <div id="game-grid"></div>
+            <div id="grid-container">
+                <div id="game-grid"></div>
 
-            <div id="game-over" style="display: none">
-                <p id="game-over-message"></p>
-                <button class="game-btn" id="game-over-btn">Rejouer</button>
+                <pre id="history"></pre>
             </div>
         </div>
     </body>

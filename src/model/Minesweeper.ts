@@ -1,10 +1,7 @@
+import { DEFAULT_DELAY, DEFAULT_DIFFICULTY, MAX_DELAY, MIN_DELAY } from '@/constants/defaults';
 import Difficulty from '@/enums/Difficulty';
 import DijkstraBot from './DijkstraBot';
 
-const DEFAULT_DIFFICULTY = Difficulty.Easy;
-const DEFAULT_DELAY = 500;
-const MIN_DELAY = 0;
-const MAX_DELAY = 2000;
 
 /**
  * Classe représentant le jeu du démineur.
@@ -28,6 +25,15 @@ export default class Minesweeper {
      * @memberof Minesweeper
      */
     private readonly _gameGrid: HTMLElement;
+
+    /**
+     * L'élément HTML contenant l'hitorique des actions
+     * @readonly
+     * @private
+     * @type {HTMLElement}
+     * @memberof Minesweeper
+     */
+    private readonly _history: HTMLElement;
 
     /**
      * Le sélecteur de difficultée.
@@ -58,14 +64,6 @@ export default class Minesweeper {
     private readonly _startGameBtn: HTMLElement;
 
     /**
-     * Le conteneur de fin de partie.
-     * @private
-     * @type {HTMLElement}
-     * @memberof Minesweeper
-     */
-    private readonly _gameOverContainer: HTMLElement;
-
-    /**
      * Le message de fin de partie.
      * @private
      * @type {HTMLElement}
@@ -74,13 +72,11 @@ export default class Minesweeper {
     private readonly _gameOverMessage: HTMLElement;
 
     /**
-     * Le bouton pour recommencer une partie.
+     * Indique si le jeu est en train d'être résolu.
      * @private
-     * @type {HTMLElement}
+     * @type {boolean}
      * @memberof Minesweeper
      */
-    private readonly _gameOverBtn: HTMLElement;
-
     private _isSolving: boolean;
 
     /**
@@ -89,9 +85,16 @@ export default class Minesweeper {
      */
     public constructor() {
         this._gameGrid = document.getElementById('game-grid')!;
+        this._history = document.getElementById('history')!;
+        this._newGameBtn = document.getElementById('new-game')!;
+        this._startGameBtn = document.getElementById('start-game')!;
+        this._gameOverMessage = document.getElementById('game-over-message')!;
+
+        // Difficultée
         this._difficultySelect = document.getElementById('difficulty-select') as HTMLSelectElement;
         this._difficultySelect.value = DEFAULT_DIFFICULTY;
 
+        // Délais
         this._delayInput = document.getElementById('delay-input') as HTMLInputElement;
         this._delayInput.value = DEFAULT_DELAY.toString();
         this._delayInput.min = MIN_DELAY.toString();
@@ -99,18 +102,9 @@ export default class Minesweeper {
         this._delayLabel = document.getElementById('delay-input-label')!;
         this.handleDelayChange();
 
-        this._newGameBtn = document.getElementById('new-game')!;
-        this._startGameBtn = document.getElementById('start-game')!;
-        this._gameOverContainer = document.getElementById('game-over')!;
-        this._gameOverMessage = document.getElementById('game-over-message')!;
-        this._gameOverBtn = document.getElementById('game-over-btn')!;
-
-        this._bot = new DijkstraBot(this.getCurrentDifficulty(), this._gameGrid);
+        this._bot = new DijkstraBot(this.getCurrentDifficulty(), this._gameGrid, this._history);
 
         this._isSolving = false;
-
-        // Bindings
-        this.startGame = this.startGame.bind(this);
 
         // Inits
         this.initEventListeners();
@@ -164,7 +158,6 @@ export default class Minesweeper {
         this._difficultySelect.addEventListener('change', this.newGame.bind(this));
         this._delayInput.addEventListener('input', this.handleDelayChange.bind(this));
         this._startGameBtn.addEventListener('click', this.startGame.bind(this));
-        this._gameOverBtn.addEventListener('click', this.newGame.bind(this));
     }
 
     /**
@@ -173,9 +166,11 @@ export default class Minesweeper {
      * @memberof Minesweeper
      */
     private newGame(): void {
-        this._bot = new DijkstraBot(this.getCurrentDifficulty(), this._gameGrid);
-        document.getElementById('game-over')!.style.display = 'none';
+        this._bot.stopSolving();
+        this._bot = new DijkstraBot(this.getCurrentDifficulty(), this._gameGrid, this._history);
         this._gameGrid.style.setProperty('--grid-size', this._bot.grid.size.toString());
+        this._gameOverMessage.style.display = 'none';
+        this._history.textContent = '';
         this._bot.display();
     }
 
@@ -189,13 +184,12 @@ export default class Minesweeper {
      * @memberof Minesweeper
      */
     private async startGame(): Promise<void> {
+        this._gameOverMessage.style.display = 'none';
         if (!this._isSolving) {
             // Résolution
             this._isSolving = true;
             await this._bot.solve(this.getCurrentDelay());
             this._isSolving = false;
-
-            this._bot.grid.discoverMines();
 
             // Affichage du message de fin
             if (this._bot.grid.isEnd) {
@@ -207,7 +201,7 @@ export default class Minesweeper {
             } else {
                 this._gameOverMessage.textContent = 'Impossible de résoudre complètement la grille';
             }
-            this._gameOverContainer.style.display = 'block';
+            this._gameOverMessage.style.display = 'block';
 
             this._bot.display();
         }
