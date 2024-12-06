@@ -153,5 +153,60 @@ describe('Grid', () => {
         });
     });
 
-    // TODO: nbCells, nbMinesLeft
+    describe('nbCells', () => {
+        it('should return the number of cells', () => {
+            // Arrange
+            const expected = grid.size * grid.size;
+
+            // Act
+            const result = grid.nbCells;
+
+            // Assert
+            expect(result).toBe(expected);
+        });
+    });
+
+    describe('nbMinesLeft', () => {
+        it('should return the number of mines at the start of the game', () => {
+            // Arrange
+            const expected = grid.nbMines;
+
+            // Act
+            const result = grid.nbMinesLeft;
+
+            // Assert
+            expect(result).toBe(expected);
+        });
+
+        it('should decrease when cells are marked', () => {
+            // Arrange
+            const markedCells = 3;
+            const expected = grid.nbMines - markedCells;
+
+            // Act
+            for (let i = 0; i < markedCells; i++) {
+                grid.performAction({ coordinates: { row: i, column: i }, type: ActionType.Mark });
+            }
+
+            const result = grid.nbMinesLeft;
+
+            // Assert
+            expect(result).toBe(expected);
+        });
+
+        it('should increase when cells are unmarked', () => {
+            // Arrange
+            const coordinates = { row: 0, column: 0 };
+            const expected = grid.nbMines;
+
+            // Act
+            grid.performAction({ coordinates, type: ActionType.Mark });
+            grid.performAction({ coordinates, type: ActionType.Mark });
+
+            const result = grid.nbMinesLeft;
+
+            // Assert
+            expect(result).toBe(expected);
+        });
+    });
 });

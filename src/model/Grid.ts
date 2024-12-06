@@ -205,8 +205,14 @@ export default class Grid {
         return this._cells;
     }
 
+    /**
+     * Le nombre de mines restantes.
+     * @readonly
+     * @type {number}
+     * @memberof Grid
+     */
     public get nbMinesLeft(): number {
-        // Récupération des cellules maruquées
+        // Récupération des cellules marquées
         const markedCells = this._cells.flat().filter((cell) => cell.state === CellState.Marked);
         // Calcul du nombre de mines restantes
         return this.nbMines - markedCells.length;
