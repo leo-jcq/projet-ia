@@ -2,11 +2,12 @@
   "name": "projet-ia",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "vitest watch",
+    "test:ci": "vitest run",
+    "lint": "eslint . --max-warnings 0",
     "build": "tsc && vite build",
-    "lint": "eslint .",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -16,7 +17,10 @@
     "eslint": "^9.12.0",
     "globals": "^15.11.0",
     "sass": "^1.80.1",
-    "typescript": "^5.5.3",
-    "vite": "^5.4.8"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.11.0",
+    "vite": "^5.4.8",
+    "vitest": "^2.1.3"
   }
 }
