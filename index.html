@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link rel="icon" type="image/png" href="/projet-ia/logo.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap"
+            rel="stylesheet"
+        />
+
+
+        <title>Projet IA | Démineur</title>
+      <script type="module" crossorigin src="/projet-ia/assets/index-C5uI84A8.js"></script>
+      <link rel="stylesheet" crossorigin href="/projet-ia/assets/index-D1CHyAiW.css">
+    </head>
+    <body>
+        <div id="game-container">
+            <div id="game-header">
+                <div id="difficulty">
+                    <select id="difficulty-select">
+                        <option value="easy">Facile</option>
+                        <option value="medium">Moyen</option>
+                        <option value="hard">Difficile</option>
+                    </select>
+                </div>
+
+                <div id="settings">
+                    <div id="delay">
+                        <label for="delay-input" id="delay-input-label"></label>
+                        <input
+                            type="range"
+                            id="delay-input"
+                            step="10"
+                            min="0"
+                            max="500"
+                            value="100"
+                        />
+                    </div>
+
+                    <div id="show-full">
+                        <label for="show-full-input" id="show-full-input-label">Montrere toutes les étapes ?</label>
+                        <input type="checkbox" id="show-full-input">
+                    </div>
+                </div>
+            </div>
+
+            <div id="game-actions">
+                <button class="game-btn" id="new-game">Nouvelle partie</button>
+                <button class="game-btn" id="start-game">Commencer</button>
+
+                <p id="game-over-message" style="display: none"></p>
+            </div>
+
+            <div id="grid-container">
+                <div id="game-grid"></div>
+
+                <pre id="history"></pre>
+            </div>
+        </div>
+    </body>
+</html>
