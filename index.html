@@ -63,13 +63,21 @@
                         <input type="checkbox" id="show-all-games-input" />
                     </div>
                 </div>
+
+                <div class="header-section">
+                    <label for="mode-select" id="mode-label">Mode</label>
+                    <select id="mode-select" value="visual">
+                        <option value="visual">Visuel</option>
+                        <option value="perf">Performance</option>
+                    </select>
+                </div>
             </div>
 
             <div id="game-actions">
                 <button class="game-btn" id="reset">Réinitialiser</button>
                 <button class="game-btn" id="start-game">Commencer</button>
 
-                <p id="status-message" style="display: none"></p>
+                <p id="status-message"></p>
             </div>
 
             <div id="grid-container">

@@ -1,22 +1,21 @@
-import { MAX_DELAY, MIN_DELAY } from '@/constants/defaults';
-import ActionType, { ActionTypeToString } from '@/enums/ActionType';
+import ActionType from '@/enums/ActionType';
 import CellState from '@/enums/CellState';
 import Difficulty from '@/enums/Difficulty';
 import { Action, CellInfo, Coordinates } from '@/types/game';
-import wait from '@/utils/wait';
 import Grid from './Grid';
+import MinesweeperBot from './MinesweeperBot';
 
 /**
- * Un bot pour résoudre un démineur.
+ * Version instantanée de {@link MinesweeperBot} (sans attente entre les coups).
  * @export
  * @class MinesweeperBot
  */
-export default class MinesweeperBot {
+export default class InstantMinesweeperBot {
     /**
      * La grille du démineur.
      * @readonly
      * @type {Grid}
-     * @memberof MinesweeperBot
+     * @memberof InstantMinesweeperBot
      */
     public readonly grid: Grid;
 
@@ -25,80 +24,28 @@ export default class MinesweeperBot {
      * @private
      * @readonly
      * @type {CellInfo[][]}
-     * @memberof MinesweeperBot
+     * @memberof InstantMinesweeperBot
      */
     private readonly _knownGrid: CellInfo[][];
-
-    /**
-     * Le délai entre chaque tour.
-     * @private
-     * @type {number}
-     * @memberof MinesweeperBot
-     */
-    private _delay: number;
-
-    /**
-     * Indique si il faut montrer toute la résolution.
-     * @type {boolean}
-     * @memberof MinesweeperBot
-     */
-    public showFullSolving: boolean;
-
-    /**
-     * Indique si il faut afficher dans la console.
-     * @type {boolean}
-     * @memberof MinesweeperBot
-     */
-    public printConsole: boolean;
 
     /**
      * Indique si le bot doit continuer de résoudre le démineur.
      * Sers à stopper le bot de l'extérieur.
      * @private
      * @type {boolean}
-     * @memberof MinesweeperBot
+     * @memberof InstantMinesweeperBot
      */
     private _continueSolve: boolean;
 
     /**
-     * L'élément HTML de la grille du démineur.
-     * @private
-     * @readonly
-     * @type {HTMLElement}
-     * @memberof MinesweeperBot
-     */
-    private readonly _gameGrid?: HTMLElement;
-
-    /**
-     * L'élément HTML de l'historique des actions du bot.
-     * @private
-     * @type {HTMLElement}
-     * @memberof MinesweeperBot
-     */
-    private readonly _history?: HTMLElement;
-
-    /**
      * Crée une instance de {@link MinesweeperBot}.
      * @param {Difficulty} difficulty - La difficulté du démineur.
-     * @param {HTMLElement} [gameGrid] - L'élément HTML de la grille du démineur.
-     * @param {HTMLElement} [history] - L'élément HTML de l'historique des actions du bot.
-     * @memberof MinesweeperBot
+     * @memberof InstantMinesweeperBot
      */
-    public constructor(
-        difficulty: Difficulty,
-        delay: number,
-        showFullSolving: boolean,
-        gameGrid?: HTMLElement,
-        history?: HTMLElement
-    ) {
+    public constructor(difficulty: Difficulty) {
         this.grid = new Grid(difficulty);
         this._knownGrid = [];
-        this._delay = delay;
-        this.showFullSolving = showFullSolving;
         this._continueSolve = true;
-        this._gameGrid = gameGrid;
-        this._history = history;
-        this.printConsole = false;
 
         this.initializeKnownGrid();
     }
@@ -106,7 +53,7 @@ export default class MinesweeperBot {
     /**
      * Initialise la grille connue du bot.
      * @private
-     * @memberof MinesweeperBot
+     * @memberof InstantMinesweeperBot
      */
     private initializeKnownGrid(): void {
         // Parcours des lignes
@@ -126,7 +73,7 @@ export default class MinesweeperBot {
     /**
      * Met à jour la grille connue du bot avec les informations actuelles.
      * @private
-     * @memberof MinesweeperBot
+     * @memberof InstantMinesweeperBot
      */
     private updateKnownGrid(): void {
         // Parcours de la grille
@@ -152,7 +99,7 @@ export default class MinesweeperBot {
      * @private
      * @param {Coordinates} coordinates - Les coordonnées de la cellule.
      * @return {Coordinates[]} Les coordonnées des voisines d'une cellule.
-     * @memberof MinesweeperBot
+     * @memberof InstantMinesweeperBot
      */
     private getNeighbors(coordinates: Coordinates): Coordinates[] {
         const { row, column } = coordinates;
@@ -178,16 +125,12 @@ export default class MinesweeperBot {
      * Trouve une action sûr à effectuer.
      * @private
      * @return {Promise<Action | null>} L'action sûr à effectuer, ou `null` si aucune action sûr n'est trouvée.
-     * @memberof MinesweeperBot
+     * @memberof InstantMinesweeperBot
      */
     private async findSafeAction(): Promise<Action | null> {
         // Parcours des cellules
         for (let row = 0; row < this.grid.size; row++) {
             for (let column = 0; column < this.grid.size; column++) {
-                if (this.showFullSolving) {
-                    this.display({ row, column });
-                }
-
                 // Récupération de la cellule
                 const cell = this._knownGrid[row][column];
 
@@ -226,10 +169,6 @@ export default class MinesweeperBot {
                             coordinates: coveredNeighbors[0]
                         };
                     }
-
-                    if (this.showFullSolving) {
-                        await wait(this._delay);
-                    }
                 }
             }
         }
@@ -242,7 +181,7 @@ export default class MinesweeperBot {
      * Trouve le mouvement le moins risqué à effectuer.
      * @private
      * @return {Promise<Action | null>} Le mouvement le moins risqué à effectuer, ou `null` si aucun mouvement n'est trouvé.
-     * @memberof MinesweeperBot
+     * @memberof InstantMinesweeperBot
      */
     private async findLeastRiskyMove(): Promise<Action | null> {
         // Initialisation de la liste des probabilités qu'il ait une mine pour chaque coordonnée
@@ -264,13 +203,10 @@ export default class MinesweeperBot {
         // Parcours des cellules
         for (let row = 0; row < this.grid.size; row++) {
             for (let column = 0; column < this.grid.size; column++) {
-                const coordinates: Coordinates = { row, column };
-                if (this.showFullSolving) {
-                    this.display(coordinates);
-                }
-
                 // Si la cellule est couverte
                 if (this._knownGrid[row][column].state === CellState.Covered) {
+                    const coordinates: Coordinates = { row, column };
+
                     // Calcul de la probabilité qu'elle ait une mine
                     const probability = await this.calculateMineProbability(
                         coordinates,
@@ -278,10 +214,6 @@ export default class MinesweeperBot {
                     );
                     // Ajout de la probabilité
                     probabilities.push({ coordinates, probability });
-                }
-
-                if (this.showFullSolving) {
-                    await wait(this._delay);
                 }
             }
         }
@@ -305,19 +237,13 @@ export default class MinesweeperBot {
      * Calcule la probabilité qu'une cellule contienne une mine.
      * @private
      * @param {Coordinates} coordinates - Les coordonnées de la cellule.
-     * @return {Promise<number>} La probabilité qu'une cellule contienne une mine.
-     * @memberof MinesweeperBot
+     * @return {number} La probabilité qu'une cellule contienne une mine.
+     * @memberof InstantMinesweeperBot
      */
     private async calculateMineProbability(
         coordinates: Coordinates,
         defaultProbability: number
     ): Promise<number> {
-        if (this.showFullSolving) {
-            // Attente et affichage
-            await wait(this.delay);
-            this.display(coordinates);
-        }
-
         // Récupération des voisines découvertes
         const discoveredNeighbors = this.getNeighbors(coordinates).filter(
             (n) => this._knownGrid[n.row][n.column].state === CellState.Discovered
@@ -329,12 +255,6 @@ export default class MinesweeperBot {
 
         // Parcours des voisines découvertes
         for (const neighborCoordinates of discoveredNeighbors) {
-            if (this.showFullSolving) {
-                // Attente et affichage
-                await wait(this.delay);
-                this.display(coordinates);
-            }
-
             // Récupération de la cellule
             const neighbor = this._knownGrid[neighborCoordinates.row][neighborCoordinates.column];
 
@@ -364,71 +284,8 @@ export default class MinesweeperBot {
     }
 
     /**
-     * Affiche une action dans l'historique.
-     * @private
-     * @param {Action} action - L'action à afficher.
-     * @memberof MinesweeperBot
-     */
-    private displayAction(action: Action): void {
-        // Pas d'affichage si on a pas l'élement HTML
-        if (!this._history) return;
-
-        // Conversion en chaîne de caractères
-        const { coordinates, type } = action;
-        const actionString = ActionTypeToString[type];
-        const coordinatesString = `(${coordinates.row + 1}, ${coordinates.column + 1})`;
-
-        // Ajout de l'action à l'historique
-        this._history.textContent += `${actionString} de la case ${coordinatesString}\n`;
-    }
-
-    /**
-     * Le délai entre chaque tour.
-     * @type {number}
-     * @memberof MinesweeperBot
-     */
-    public get delay(): number {
-        return this._delay;
-    }
-
-    /**
-     * Le délai entre chaque tour.
-     * @type {number}
-     * @memberof MinesweeperBot
-     */
-    public set delay(value: number) {
-        if (value >= MIN_DELAY && value < MAX_DELAY) {
-            this._delay = value;
-        }
-    }
-
-    /**
-     * Affiche la grille du démineur.
-     * @memberof MinesweeperBot
-     */
-    public display(current?: Coordinates): void {
-        // Si on a l'élement HTML de la grille
-        if (this._gameGrid) {
-            // Affichage de la grille en HTML
-            this._gameGrid.innerHTML = this.grid.toHtml();
-            if (current) {
-                const currentElement = document.querySelector<HTMLDivElement>(
-                    `.game-cell[data-row="${current.row}"][data-column="${current.column}"]`
-                );
-                if (currentElement) {
-                    currentElement.classList.add('game-cell--current');
-                }
-            }
-        } else if (this.printConsole) {
-            // Affichage dans la console
-            console.clear();
-            console.log(this.grid.toString());
-        }
-    }
-
-    /**
      * Arrête la résolution du démineur.
-     * @memberof MinesweeperBot
+     * @memberof InstantMinesweeperBot
      */
     public stopSolving(): void {
         this._continueSolve = false;
@@ -436,8 +293,8 @@ export default class MinesweeperBot {
 
     /**
      * Résout le démineur.
+     * @memberof InstantMinesweeperBot
      * @return {Promise<number>} Le temps de résolution (en milisecondes).
-     * @memberof MinesweeperBot
      */
     public async solve(): Promise<number> {
         const startTime = Date.now();
@@ -447,14 +304,13 @@ export default class MinesweeperBot {
             coordinates: { row: 0, column: 0 },
             type: ActionType.Discover
         };
-        this.display(this.showFullSolving ? firstAction.coordinates : undefined);
         this.grid.performAction(firstAction);
-        this.display(this.showFullSolving ? firstAction.coordinates : undefined);
 
         while (!this.grid.isEnd && this._continueSolve) {
             // Mise à jour de la grille connue avec les informations actuelles
             this.updateKnownGrid();
 
+            // Recherche de l'action à trouver
             let action = await this.findSafeAction();
             if (!action) {
                 action = await this.findLeastRiskyMove();
@@ -465,46 +321,7 @@ export default class MinesweeperBot {
                 }
             }
 
-            if (this.showFullSolving) {
-                this.display(action.coordinates);
-            }
-
             this.grid.performAction(action);
-            this.displayAction(action);
-
-            this.display(this.showFullSolving ? action.coordinates : undefined);
-
-            // Attente avant le prochain tour
-            await wait(this._delay);
-        }
-
-        // Marquage des mines restantes si on a gagné
-        if (this.grid.isWin) {
-            // Parcours des cellules
-            for (let row = 0; row < this.grid.size; row++) {
-                for (let column = 0; column < this.grid.size; column++) {
-                    // Récupération de la cellule
-                    const cell = this._knownGrid[row][column];
-
-                    // Si la cellule est couverte
-                    if (cell.state === CellState.Covered) {
-                        // Création de l'action
-                        const action: Action = {
-                            coordinates: { row, column },
-                            type: ActionType.Mark
-                        };
-                        // Marquage de la cellule
-                        this.grid.performAction(action);
-
-                        // Affichage
-                        this.display();
-                        this.displayAction(action);
-
-                        // Attente
-                        await wait(this._delay);
-                    }
-                }
-            }
         }
 
         return Date.now() - startTime;

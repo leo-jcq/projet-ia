@@ -1,4 +1,5 @@
 import Difficulty from '@/enums/Difficulty';
+import Mode from '@/enums/Mode';
 
 /**
  * La difficultée par défaut.
@@ -41,3 +42,10 @@ export const DEFAULT_NB_GAMES = 1;
  * @export
  */
 export const MIN_NB_GAMES = 1;
+
+/**
+ * Le mode par défaut.
+ * @constant {Mode}
+ * @export
+ */
+export const DEFAULT_MODE = Mode.Visual;

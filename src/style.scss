@@ -67,8 +67,9 @@
 }
 
 #difficulty-select,
+#mode-select,
 .game-btn {
-    padding: 0.5rem;
+    padding: 0.3rem;
 }
 
 .game-cell,
@@ -107,4 +108,14 @@
 button,
 input[type="checkbox"] {
     cursor: pointer;
+}
+
+input,
+select,
+button {
+    &:disabled {
+        opacity: 0.75;
+
+        cursor: not-allowed;
+    }
 }
