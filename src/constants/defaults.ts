@@ -27,3 +27,17 @@ export const MIN_DELAY = 0;
  * @export
  */
 export const MAX_DELAY = 500;
+
+/**
+ * Le nombre de parties par défaut.
+ * @constant {number}
+ * @export
+ */
+export const DEFAULT_NB_GAMES = 1;
+
+/**
+ * Le nombre de parties minimum.
+ * @constant {number}
+ * @export
+ */
+export const MIN_NB_GAMES = 1;

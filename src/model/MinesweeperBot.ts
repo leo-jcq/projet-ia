@@ -9,14 +9,14 @@ import Grid from './Grid';
 /**
  * Représente un bot utilisant l'algorithme de Dijkstra pour résoudre un démineur.
  * @export
- * @class DijkstraBot
+ * @class MinesweeperBot
  */
-export default class DijkstraBot {
+export default class MinesweeperBot {
     /**
      * La grille du démineur.
      * @readonly
      * @type {Grid}
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     public readonly grid: Grid;
 
@@ -25,7 +25,7 @@ export default class DijkstraBot {
      * @private
      * @readonly
      * @type {CellInfo[][]}
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private readonly _knownGrid: CellInfo[][];
 
@@ -33,23 +33,30 @@ export default class DijkstraBot {
      * Le délai entre chaque tour.
      * @private
      * @type {number}
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private _delay: number;
 
     /**
      * Indique si il faut montrer toute la résolution.
      * @type {boolean}
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     public showFullSolving: boolean;
+
+    /**
+     * Indique si il faut afficher dans la console.
+     * @type {boolean}
+     * @memberof MinesweeperBot
+     */
+    public printConsole: boolean;
 
     /**
      * Indique si le bot doit continuer de résoudre le démineur.
      * Sers à stopper le bot de l'extérieur.
      * @private
      * @type {boolean}
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private _continueSolve: boolean;
 
@@ -58,7 +65,7 @@ export default class DijkstraBot {
      * @private
      * @readonly
      * @type {HTMLElement}
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private readonly _gameGrid?: HTMLElement;
 
@@ -66,16 +73,16 @@ export default class DijkstraBot {
      * L'élément HTML de l'historique des actions du bot.
      * @private
      * @type {HTMLElement}
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private readonly _history?: HTMLElement;
 
     /**
-     * Crée une instance de {@link DijkstraBot}.
+     * Crée une instance de {@link MinesweeperBot}.
      * @param {Difficulty} difficulty - La difficulté du démineur.
      * @param {HTMLElement} [gameGrid] - L'élément HTML de la grille du démineur.
      * @param {HTMLElement} [history] - L'élément HTML de l'historique des actions du bot.
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     public constructor(
         difficulty: Difficulty,
@@ -91,6 +98,7 @@ export default class DijkstraBot {
         this._continueSolve = true;
         this._gameGrid = gameGrid;
         this._history = history;
+        this.printConsole = false;
 
         this.initializeKnownGrid();
     }
@@ -98,7 +106,7 @@ export default class DijkstraBot {
     /**
      * Initialise la grille connue du bot.
      * @private
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private initializeKnownGrid(): void {
         // Parcours des lignes
@@ -118,7 +126,7 @@ export default class DijkstraBot {
     /**
      * Met à jour la grille connue du bot avec les informations actuelles.
      * @private
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private updateKnownGrid(): void {
         // Parcours de la grille
@@ -144,7 +152,7 @@ export default class DijkstraBot {
      * @private
      * @param {Coordinates} coordinates - Les coordonnées de la cellule.
      * @return {Coordinates[]} Les coordonnées des voisines d'une cellule.
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private getNeighbors(coordinates: Coordinates): Coordinates[] {
         const { row, column } = coordinates;
@@ -170,7 +178,7 @@ export default class DijkstraBot {
      * Trouve une action sûr à effectuer.
      * @private
      * @return {(Action | null)} L'action sûr à effectuer, ou `null` si aucune action sûr n'est trouvée.
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private async findSafeAction(): Promise<Action | null> {
         // Parcours des cellules
@@ -179,6 +187,7 @@ export default class DijkstraBot {
                 if (this.showFullSolving) {
                     this.display({ row, column });
                 }
+
                 // Récupération de la cellule
                 const cell = this._knownGrid[row][column];
 
@@ -233,7 +242,7 @@ export default class DijkstraBot {
      * Trouve le mouvement le moins risqué à effectuer.
      * @private
      * @return {(Action | null)} Le mouvement le moins risqué à effectuer, ou `null` si aucun mouvement n'est trouvé.
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private async findLeastRiskyMove(): Promise<Action | null> {
         // Initialisation de la liste des probabilités qu'il ait une mine pour chaque coordonnée
@@ -255,12 +264,13 @@ export default class DijkstraBot {
         // Parcours des cellules
         for (let row = 0; row < this.grid.size; row++) {
             for (let column = 0; column < this.grid.size; column++) {
+                const coordinates: Coordinates = { row, column };
                 if (this.showFullSolving) {
-                    this.display({ row, column });
+                    this.display(coordinates);
                 }
+
                 // Si la cellule est couverte
                 if (this._knownGrid[row][column].state === CellState.Covered) {
-                    const coordinates: Coordinates = { row, column };
                     // Calcul de la probabilité qu'elle ait une mine
                     const probability = await this.calculateMineProbability(
                         coordinates,
@@ -296,7 +306,7 @@ export default class DijkstraBot {
      * @private
      * @param {Coordinates} coordinates - Les coordonnées de la cellule.
      * @return {number} La probabilité qu'une cellule contienne une mine.
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private async calculateMineProbability(
         coordinates: Coordinates,
@@ -313,18 +323,12 @@ export default class DijkstraBot {
             (n) => this._knownGrid[n.row][n.column].state === CellState.Discovered
         );
 
-        // Si aucune voisines découvertes
-        if (discoveredNeighbors.length === 0) {
-            // Retourne la probabilité par défaut
-            return defaultProbability;
-        }
-
         // Initialisation des variables
         let totalMines = 0; // Le total de mines autour
         let totalPossibleMines = 0; // Le nombre total de possibles mines autour
 
         // Parcours des voisines découvertes
-        for (const neighbor of discoveredNeighbors) {
+        for (const neighborCoordinates of discoveredNeighbors) {
             if (this.showFullSolving) {
                 // Attente et affichage
                 await wait(this.delay);
@@ -332,12 +336,12 @@ export default class DijkstraBot {
             }
 
             // Récupération de la cellule
-            const cell = this._knownGrid[neighbor.row][neighbor.column];
+            const neighbor = this._knownGrid[neighborCoordinates.row][neighborCoordinates.column];
 
             // Si on connait le nombre de mines autour de la cellule
-            if (cell.nbMinesAround !== undefined) {
+            if (neighbor.nbMinesAround !== undefined) {
                 // Récupération de ses voisines
-                const neighborCells = this.getNeighbors(neighbor);
+                const neighborCells = this.getNeighbors(neighborCoordinates);
 
                 // Récupération de ses voisines couvertes
                 const neighborCoveredCells = neighborCells.filter(
@@ -350,7 +354,7 @@ export default class DijkstraBot {
                 );
 
                 // Calcul
-                totalMines += Math.max(0, cell.nbMinesAround - markedMines.length);
+                totalMines += Math.max(0, neighbor.nbMinesAround - markedMines.length);
                 totalPossibleMines += neighborCoveredCells.length;
             }
         }
@@ -363,7 +367,7 @@ export default class DijkstraBot {
      * Affiche une action dans l'historique.
      * @private
      * @param {Action} action - L'action à afficher.
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     private displayAction(action: Action): void {
         // Pas d'affichage si on a pas l'élement HTML
@@ -381,7 +385,7 @@ export default class DijkstraBot {
     /**
      * Le délai entre chaque tour.
      * @type {number}
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     public get delay(): number {
         return this._delay;
@@ -390,7 +394,7 @@ export default class DijkstraBot {
     /**
      * Le délai entre chaque tour.
      * @type {number}
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     public set delay(value: number) {
         if (value >= MIN_DELAY && value < MAX_DELAY) {
@@ -400,7 +404,7 @@ export default class DijkstraBot {
 
     /**
      * Affiche la grille du démineur.
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     public display(current?: Coordinates): void {
         // Si on a l'élement HTML de la grille
@@ -415,8 +419,8 @@ export default class DijkstraBot {
                     currentElement.classList.add('game-cell--current');
                 }
             }
-        } else {
-            // Sinon affichage dans la console
+        } else if (this.printConsole) {
+            // Affichage dans la console
             console.clear();
             console.log(this.grid.toString());
         }
@@ -424,7 +428,7 @@ export default class DijkstraBot {
 
     /**
      * Arrête la résolution du démineur.
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     public stopSolving(): void {
         this._continueSolve = false;
@@ -432,7 +436,7 @@ export default class DijkstraBot {
 
     /**
      * Résout le démineur.
-     * @memberof DijkstraBot
+     * @memberof MinesweeperBot
      */
     public async solve(): Promise<void> {
         // Premier coup

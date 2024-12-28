@@ -27,7 +27,7 @@
     width: 100%;
 
     display: flex;
-    justify-content: space-between;
+    gap: 32px;
     align-items: center;
 }
 
@@ -35,6 +35,10 @@
     display: flex;
     gap: 0.3rem;
     align-items: center;
+}
+
+#nb-games-input {
+    padding: 4px 8px;
 }
 
 #game-actions {
@@ -98,4 +102,9 @@
             color: list.nth($cells-colors, $i);
         }
     }
+}
+
+button,
+input[type="checkbox"] {
+    cursor: pointer;
 }
