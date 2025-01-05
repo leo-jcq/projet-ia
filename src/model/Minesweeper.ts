@@ -223,6 +223,7 @@ export default class Minesweeper {
      * @memberof Minesweeper
      */
     private initEventListeners(): void {
+        this._difficultySelect.addEventListener('input', this.newGame.bind(this));
         this._delayInput.addEventListener('input', this.handleDelayChange.bind(this));
         this._showFullInput.addEventListener('change', this.handleShowFullChange.bind(this));
         this._modeSelect.addEventListener('change', this.handleModeChange.bind(this));
@@ -289,6 +290,7 @@ export default class Minesweeper {
     private newGame(): void {
         // Arrêt de la résolution en cours
         this._bot.stopSolving();
+        this._step = Step.Start;
         // Initialisation du nouveau bot
         this.initNewBot(this.getCurrentDifficulty());
         this._gameGrid.style.setProperty('--grid-size', this._bot.grid.size.toString());
