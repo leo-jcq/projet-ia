@@ -289,6 +289,7 @@ export default class Minesweeper {
     private newGame(): void {
         // Arrêt de la résolution en cours
         this._bot.stopSolving();
+        this._step = Step.Start;
         // Initialisation du nouveau bot
         this.initNewBot(this.getCurrentDifficulty());
         this._gameGrid.style.setProperty('--grid-size', this._bot.grid.size.toString());
