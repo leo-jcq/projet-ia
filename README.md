@@ -58,7 +58,7 @@ Si vous n'avez pas `npm` d'installé sur votre machine ou que vous ne voulez pac
 
 ## Utilisation du bot
 
-[![Interface](./docs/interface.png)]
+![Interface](./docs/interface.png)
 
 1. Sélection de la difficultée (taille de la grille et nombre de mines) :
     - Facile : 10x10, 10 mines
