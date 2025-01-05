@@ -1,4 +1,5 @@
 import Difficulty from '@/enums/Difficulty';
+import Mode from '@/enums/Mode';
 
 /**
  * La difficultée par défaut.
@@ -27,3 +28,24 @@ export const MIN_DELAY = 0;
  * @export
  */
 export const MAX_DELAY = 500;
+
+/**
+ * Le nombre de parties par défaut.
+ * @constant {number}
+ * @export
+ */
+export const DEFAULT_NB_GAMES = 1;
+
+/**
+ * Le nombre de parties minimum.
+ * @constant {number}
+ * @export
+ */
+export const MIN_NB_GAMES = 1;
+
+/**
+ * Le mode par défaut.
+ * @constant {Mode}
+ * @export
+ */
+export const DEFAULT_MODE = Mode.Visual;

@@ -27,7 +27,7 @@
     width: 100%;
 
     display: flex;
-    justify-content: space-between;
+    gap: 32px;
     align-items: center;
 }
 
@@ -35,6 +35,10 @@
     display: flex;
     gap: 0.3rem;
     align-items: center;
+}
+
+#nb-games-input {
+    padding: 4px 8px;
 }
 
 #game-actions {
@@ -63,8 +67,9 @@
 }
 
 #difficulty-select,
-.game-btn {
-    padding: 0.5rem;
+#mode-select,
+#main-btn {
+    padding: 0.3rem;
 }
 
 .game-cell,
@@ -97,5 +102,20 @@
         &--#{$i} {
             color: list.nth($cells-colors, $i);
         }
+    }
+}
+
+button,
+input[type="checkbox"] {
+    cursor: pointer;
+}
+
+input,
+select,
+button {
+    &:disabled {
+        opacity: 0.75;
+
+        cursor: not-allowed;
     }
 }

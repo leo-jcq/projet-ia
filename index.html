@@ -19,7 +19,7 @@
     <body>
         <div id="game-container">
             <div id="game-header">
-                <div id="difficulty">
+                <div class="header-section">
                     <select id="difficulty-select">
                         <option value="easy">Facile</option>
                         <option value="medium">Moyen</option>
@@ -27,7 +27,7 @@
                     </select>
                 </div>
 
-                <div id="settings">
+                <div class="header-section">
                     <div id="delay">
                         <label for="delay-input" id="delay-input-label"></label>
                         <input
@@ -41,17 +41,42 @@
                     </div>
 
                     <div id="show-full">
-                        <label for="show-full-input" id="show-full-input-label">Montrere toutes les étapes ?</label>
-                        <input type="checkbox" id="show-full-input">
+                        <label for="show-full-input" id="show-full-input-label">
+                            Montrer toutes les étapes
+                        </label>
+                        <input type="checkbox" id="show-full-input" />
                     </div>
+                </div>
+
+                <div class="header-section">
+                    <div id="nb-games">
+                        <label for="nb-games-input" id="nb-games-input-label">
+                            Nombre de parties
+                        </label>
+                        <input type="number" id="nb-games-input" step="1" min="1" value="1" />
+                    </div>
+
+                    <div id="show-all-games">
+                        <label for="show-all-games-input" id="show-all-games-label">
+                            Montrer toutes les parties
+                        </label>
+                        <input type="checkbox" id="show-all-games-input" />
+                    </div>
+                </div>
+
+                <div class="header-section">
+                    <label for="mode-select" id="mode-label">Mode</label>
+                    <select id="mode-select" value="visual">
+                        <option value="visual">Visuel</option>
+                        <option value="perf">Performance</option>
+                    </select>
                 </div>
             </div>
 
             <div id="game-actions">
-                <button class="game-btn" id="new-game">Nouvelle partie</button>
-                <button class="game-btn" id="start-game">Commencer</button>
+                <button id="main-btn">Commencer</button>
 
-                <p id="game-over-message" style="display: none"></p>
+                <p id="status-message"></p>
             </div>
 
             <div id="grid-container">
