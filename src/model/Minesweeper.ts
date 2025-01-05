@@ -7,8 +7,10 @@ import {
     MIN_DELAY,
     MIN_NB_GAMES
 } from '@/constants/defaults';
+import { RESET_TEXT, START_TEXT } from '@/constants/literals';
 import Difficulty from '@/enums/Difficulty';
 import Mode from '@/enums/Mode';
+import Step from '@/enums/Step';
 import InstantMinesweeperBot from './InstantMinesweeperBot';
 import MinesweeperBot from './MinesweeperBot';
 
@@ -106,15 +108,7 @@ export default class Minesweeper {
      * @type {HTMLButtonElement}
      * @memberof Minesweeper
      */
-    private readonly _resetBtn: HTMLButtonElement;
-
-    /**
-     * Le bouton pour démarrer une nouvelle partie.
-     * @private
-     * @type {HTMLButtonElement}
-     * @memberof Minesweeper
-     */
-    private readonly _startGameBtn: HTMLButtonElement;
+    private readonly _mainBtn: HTMLButtonElement;
 
     /**
      * Le message de status de la partie.
@@ -125,14 +119,21 @@ export default class Minesweeper {
     private readonly _statusMessage: HTMLElement;
 
     /**
+     * L'étape du jeu.
+     * @private
+     * @type {Step}
+     * @memberof Minesweeper
+     */
+    private _step: Step;
+
+    /**
      * Crée une instance de {@link Minesweeper}.
      * @memberof Minesweeper
      */
     public constructor() {
         this._gameGrid = document.getElementById('game-grid')!;
         this._history = document.getElementById('history')!;
-        this._resetBtn = document.getElementById('reset') as HTMLButtonElement;
-        this._startGameBtn = document.getElementById('start-game') as HTMLButtonElement;
+        this._mainBtn = document.getElementById('main-btn') as HTMLButtonElement;
         this._statusMessage = document.getElementById('status-message')!;
 
         // Difficulté
@@ -170,6 +171,7 @@ export default class Minesweeper {
             this._gameGrid,
             this._history
         );
+        this._step = Step.Start;
 
         // Inits
         this.initEventListeners();
@@ -221,21 +223,41 @@ export default class Minesweeper {
      * @memberof Minesweeper
      */
     private initEventListeners(): void {
-        this._difficultySelect.addEventListener('click', this.newGame.bind(this));
         this._delayInput.addEventListener('input', this.handleDelayChange.bind(this));
         this._showFullInput.addEventListener('change', this.handleShowFullChange.bind(this));
         this._modeSelect.addEventListener('change', this.handleModeChange.bind(this));
-        this._resetBtn.addEventListener('click', this.newGame.bind(this));
-        this._startGameBtn.addEventListener('click', this.startGame.bind(this));
+        this._mainBtn.addEventListener('click', this.handleMainBtnClick.bind(this));
+    }
+
+    /**
+     * Gère une click sur le bouton principal.
+     * @private
+     * @memberof Minesweeper
+     */
+    private handleMainBtnClick(): void {
+        switch (this._step) {
+            case Step.Start:
+                this._mainBtn.textContent = RESET_TEXT;
+                this.startGame();
+                break;
+
+            case Step.Solved:
+                this._mainBtn.textContent = START_TEXT;
+                this.newGame();
+                break;
+
+            default:
+                break;
+        }
     }
 
     /**
      * Initialise un nouveau bot.
      * @private
-     * @param {Difficulty} difficulty
+     * @param {Difficulty} difficulty - La difficultée de la grille.
      * @memberof Minesweeper
      */
-    private initNewBot(difficulty: Difficulty) {
+    private initNewBot(difficulty: Difficulty): void {
         // Si mode visuel
         if (this._modeSelect.value === Mode.Visual) {
             // Création d'un bot classique
@@ -275,10 +297,10 @@ export default class Minesweeper {
         this._history.textContent = '';
         // Activation des boutons/inputs/selects
         this._difficultySelect.disabled = false;
-        this._startGameBtn.disabled = false;
         this._nbGamesInput.disabled = false;
         this._showAllGames.disabled = false;
         this._modeSelect.disabled = false;
+        this._mainBtn.disabled = false;
     }
 
     /**
@@ -365,33 +387,37 @@ export default class Minesweeper {
      */
     private async startGame(): Promise<void> {
         // Initialisation
+        this._step = Step.Solving;
         const nbGames = this.getCurrentNbGames();
         const difficulty = this.getCurrentDifficulty();
         let nbWins = 0;
         let nbErrors = 0;
         let totalTime = 0;
 
-        // Affichage du message
-        this.printStatusMessage(nbGames, nbWins, nbErrors, 0);
+        // Désactivation
         this._difficultySelect.disabled = true;
-        this._startGameBtn.disabled = true;
         this._nbGamesInput.disabled = true;
         this._showAllGames.disabled = true;
         this._modeSelect.disabled = true;
+        this._mainBtn.disabled = true;
+
+        // Affichage du message
+        this.printStatusMessage(nbGames, nbWins, nbErrors, 0);
 
         // Résolution une par une
         if (this._showAllGames.checked || this._modeSelect.value === Mode.Performance) {
             // Résolution grille par grille
             for (let i = 1; i <= nbGames; i++) {
-                // Résolution de la grille
-                totalTime += await this._bot.solve();
+                try {
+                    // Résolution de la grille
+                    totalTime += await this._bot.solve();
 
-                // Ajout du résultat
-                if (this._bot.grid.isEnd) {
+                    // Ajout du résultat
                     if (this._bot.grid.isWin) {
                         nbWins++;
                     }
-                } else {
+                } catch (e) {
+                    console.error(e);
                     nbErrors++;
                 }
 
@@ -422,15 +448,16 @@ export default class Minesweeper {
 
             // Parcours des promesses
             for (let i = 0; i < solvePromises.length; i++) {
-                // Attente de la résolution
-                totalTime += await solvePromises[i];
-                // Ajout du résultat
-                const bot = bots[i];
-                if (bot.grid.isEnd) {
+                try {
+                    // Attente de la résolution
+                    totalTime += await solvePromises[i];
+                    // Ajout du résultat
+                    const bot = bots[i];
                     if (bot.grid.isWin) {
                         nbWins++;
                     }
-                } else {
+                } catch (e) {
+                    console.error(e);
                     nbErrors++;
                 }
             }
@@ -438,6 +465,8 @@ export default class Minesweeper {
 
         // Affichage du message de fin
         this.printStatusMessage(nbGames, nbWins, nbErrors, nbGames, totalTime);
+        this._mainBtn.disabled = false;
+        this._step = Step.Solved;
     }
 
     /**
