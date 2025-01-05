@@ -223,6 +223,7 @@ export default class Minesweeper {
      * @memberof Minesweeper
      */
     private initEventListeners(): void {
+        this._difficultySelect.addEventListener('input', this.newGame.bind(this));
         this._delayInput.addEventListener('input', this.handleDelayChange.bind(this));
         this._showFullInput.addEventListener('change', this.handleShowFullChange.bind(this));
         this._modeSelect.addEventListener('change', this.handleModeChange.bind(this));
