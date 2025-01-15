@@ -71,6 +71,6 @@ Si vous n'avez pas `npm` d'installé sur votre machine ou que vous ne voulez pac
 6. Sélection du mode :
     - Mode visuel : affichage des actions du bot sur une grille. Permet de comprendre ce que fait le bot.
     - Mode performance : version du bot sans attente entre chaque coup ni affichage. Permet de mesurer plus exactement la performance du bot en omettant les appels ne servant pas à la résolution.
-7. Bouton principale, sert à commencer la résolution et à réinitialiser la grille.
+7. Bouton principal, sert à commencer la résolution et à réinitialiser la grille.
 8. La grille montrant la résolution.
 9. Historique de la résolution en cours
