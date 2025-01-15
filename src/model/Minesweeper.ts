@@ -412,10 +412,11 @@ export default class Minesweeper {
             for (let i = 1; i <= nbGames; i++) {
                 try {
                     // Résolution de la grille
-                    totalTime += await this._bot.solve();
+                    const solveTime = await this._bot.solve();
 
                     // Ajout du résultat
                     if (this._bot.grid.isWin) {
+                        totalTime += solveTime;
                         nbWins++;
                     }
                 } catch (e) {
@@ -452,10 +453,11 @@ export default class Minesweeper {
             for (let i = 0; i < solvePromises.length; i++) {
                 try {
                     // Attente de la résolution
-                    totalTime += await solvePromises[i];
+                    const solveTime = await solvePromises[i];
                     // Ajout du résultat
                     const bot = bots[i];
                     if (bot.grid.isWin) {
+                        totalTime += solveTime;
                         nbWins++;
                     }
                 } catch (e) {
@@ -487,9 +489,12 @@ export default class Minesweeper {
         current: number,
         totalTime?: number
     ) {
-        this._statusMessage.textContent = `Résolus : ${current}/${nbGames}, victoires : ${nbWins}, erreurs : ${nbErrors}`;
-        if (totalTime) {
-            const meanTime = totalTime / nbGames;
+        const winPercentage = Math.round((nbWins * 100 / nbGames) * 100) / 100;
+        this._statusMessage.textContent = `Résolus : ${current}/${nbGames}, victoires : ${nbWins} (${winPercentage}%), erreurs : ${nbErrors}`;
+
+        // Affichage du temps si mode performance
+        if (totalTime && this._modeSelect.value === Mode.Performance) {
+            const meanTime = Math.round((totalTime / nbWins) * 100) / 100;
             this._statusMessage.textContent += `, temps total : ${totalTime}ms (${meanTime}ms par grille en moyenne)`;
         }
     }

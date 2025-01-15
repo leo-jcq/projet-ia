@@ -45,13 +45,6 @@ export default class MinesweeperBot {
     public showFullSolving: boolean;
 
     /**
-     * Indique si il faut afficher dans la console.
-     * @type {boolean}
-     * @memberof MinesweeperBot
-     */
-    public printConsole: boolean;
-
-    /**
      * Indique si le bot doit continuer de résoudre le démineur.
      * Sers à stopper le bot de l'extérieur.
      * @private
@@ -98,7 +91,6 @@ export default class MinesweeperBot {
         this._continueSolve = true;
         this._gameGrid = gameGrid;
         this._history = history;
-        this.printConsole = false;
 
         this.initializeKnownGrid();
     }
@@ -419,10 +411,6 @@ export default class MinesweeperBot {
                     currentElement.classList.add('game-cell--current');
                 }
             }
-        } else if (this.printConsole) {
-            // Affichage dans la console
-            console.clear();
-            console.log(this.grid.toString());
         }
     }
 
